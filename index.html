@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LernRaum Protokoll</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <!-- 📝 DEIN LOGO HIER EINFÜGEN: Ersetze "logo.png" mit deinem Bild-Pfad -->
+                <!-- <img src="logo.png" alt="Logo" class="logo-image"> -->
+                
+                <!-- Standard Emoji (kann gelöscht werden wenn Logo verwendet wird) -->
+                <div class="logo-emoji">📚</div>
+                
+                <h2>LernRaum Protokoll</h2>
+                <p class="subtitle">Willkommen zurück!</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Anmelden</button>
+                <button class="auth-tab" onclick="switchTab('register')">Registrieren</button>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+            <div id="infoMessage" class="info-message hidden"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">E-Mail</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Passwort</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Anmelden</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="hidden">
+                <div class="form-group">
+                    <label for="registerName">Name *</label>
+                    <input type="text" id="registerName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">E-Mail *</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Passwort *</label>
+                    <input type="password" id="registerPassword" minlength="6" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="registerSubjects">Fächer (kommagetrennt)</label>
+                    <input type="text" id="registerSubjects" placeholder="z.B. Mathematik, Physik, Chemie">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Registrieren</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Teacher App Screen -->
+    <div id="teacherScreen" class="hidden">
+        <div class="container">
+            <header>
+                <!-- 📝 LOGO PLATZHALTER - Ersetze "logo.png" mit deinem Bild -->
+                <div class="header-logo-container">
+                    <!-- <img src="logo.png" alt="Logo"> -->
+                    <div class="header-logo-placeholder">📚</div>
+                </div>
+                
+                <h1>LernRaum Protokoll</h1>
+                <p class="subtitle">Mein Stundenplan & Protokolle</p>
+            </header>
+
+            <div class="user-bar">
+                <div class="user-info">
+                    <div class="user-avatar" id="teacherAvatar"></div>
+                    <div class="user-details">
+                        <h3>
+                            <span id="teacherName"></span>
+                            <span class="role-badge teacher" id="teacherRoleBadge">Lehrer</span>
+                        </h3>
+                        <p id="teacherEmail"></p>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <button class="btn btn-admin" id="backToAdminBtn" onclick="switchToAdminView()" style="display: none;">
+                        ⚙️ Admin-Bereich
+                    </button>
+                    <button class="btn btn-logout" onclick="logout()">Abmelden</button>
+                </div>
+            </div>
+
+            <div class="stats-bar" id="teacherStatsBar"></div>
+
+            <div class="main-grid">
+                <div class="card">
+                    <h2 class="card-header">
+                        <span class="card-header-left">
+                            <span class="icon">📅</span>
+                            <span>Mein Stundenplan</span>
+                        </span>
+                    </h2>
+                    
+                    <!-- Week Navigation -->
+                    <div class="week-navigation">
+                        <button class="btn btn-secondary" onclick="changeWeek(-1)">◀ Vorherige Woche</button>
+                        <span class="week-display" id="currentWeekDisplay"></span>
+                        <button class="btn btn-secondary" onclick="changeWeek(1)">Nächste Woche ▶</button>
+                    </div>
+                    
+                    <div class="schedule-container" id="teacherSchedule"></div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-header">
+                        <span class="card-header-left">
+                            <span class="icon">📝</span>
+                            <span>Protokoll erstellen</span>
+                        </span>
+                    </h2>
+                    <form id="protocolForm">
+                        <div class="form-group">
+                            <label for="sessionSelect">Einheit auswählen *</label>
+                            <select id="sessionSelect" required onchange="onSessionSelectChange()">
+                                <option value="">Bitte wählen...</option>
+                            </select>
+                        </div>
+
+                        <!-- Schüler-Auswahl mit individueller Anwesenheit -->
+                        <div id="protocolStudentsSection" class="protocol-students-section" style="display: none;">
+                            <label>Schüler & Anwesenheit *</label>
+                            <p class="form-hint">Wähle die Schüler aus und setze deren Anwesenheitsstatus:</p>
+                            <div id="protocolStudentsList" class="protocol-students-list"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date">Datum *</label>
+                            <input type="date" id="date" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Fach *</label>
+                            <input type="text" id="subject" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="topic">Thema *</label>
+                            <input type="text" id="topic" placeholder="z.B. Quadratische Gleichungen" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="progress">Lernfortschritt *</label>
+                            <select id="progress" required>
+                                <option value="">Bitte auswählen</option>
+                                <option value="5">⭐⭐⭐⭐⭐ Ausgezeichnet</option>
+                                <option value="4">⭐⭐⭐⭐ Sehr gut</option>
+                                <option value="3">⭐⭐⭐ Gut</option>
+                                <option value="2">⭐⭐ Verbesserungsbedarf</option>
+                                <option value="1">⭐ Schwierigkeiten</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notizen & Beobachtungen *</label>
+                            <textarea id="notes" placeholder="Was wurde behandelt? Wie war die Mitarbeit?" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="homework">Hausaufgaben</label>
+                            <textarea id="homework" placeholder="Aufgaben bis zur nächsten Stunde"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Protokoll speichern</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-header">
+                        <span class="card-header-left">
+                            <span class="icon">📋</span>
+                            <span>Meine Protokolle</span>
+                        </span>
+                    </h2>
+                    
+                    <div class="filters">
+                        <input type="text" id="filterStudent" class="filter-input" placeholder="🔍 Nach Schüler filtern...">
+                        <input type="text" id="filterSubject" class="filter-input" placeholder="🔍 Nach Fach filtern...">
+                    </div>
+
+                    <button onclick="exportTeacherData()" class="btn btn-secondary" style="width: 100%; margin-bottom: 1rem;">
+                        📥 Meine Daten exportieren (JSON)
+                    </button>
+
+                    <div id="teacherProtocolsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin App Screen -->
+    <div id="adminScreen" class="hidden">
+        <div class="container">
+            <header>
+                <!-- 📝 LOGO PLATZHALTER - Ersetze "logo.png" mit deinem Bild -->
+                <div class="header-logo-container">
+                    <!-- <img src="logo.png" alt="Logo"> -->
+                    <div class="header-logo-placeholder">📚</div>
+                </div>
+                
+                <h1>LernRaum Protokoll</h1>
+                <p class="subtitle">Administrator Dashboard</p>
+            </header>
+
+            <div class="user-bar">
+                <div class="user-info">
+                    <div class="user-avatar admin" id="adminAvatar"></div>
+                    <div class="user-details">
+                        <h3>
+                            <span id="adminName"></span>
+                            <span class="role-badge admin">Administrator</span>
+                            <span id="superAdminBadge" class="role-badge super-admin hidden">👑 Super Admin</span>
+                        </h3>
+                        <p id="adminEmail"></p>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <button class="btn btn-primary" onclick="switchToTeacherView()">📚 Einheiten</button>
+                    <button class="btn btn-logout" onclick="logout()">Abmelden</button>
+                </div>
+            </div>
+
+            <div id="superAdminInfo" class="info-message super-admin-info hidden" style="margin-bottom: 2rem;">
+                👑 <strong>Super-Admin Status:</strong> Sie sind der Hauptadministrator dieses Systems.
+            </div>
+
+            <div class="stats-bar" id="adminStatsBar"></div>
+
+            <div class="admin-grid">
+                <div class="card">
+                    <div class="tab-navigation">
+                        <button class="tab-btn active" onclick="switchAdminTab('sessions')">
+                            ⏰ Einheiten verwalten
+                        </button>
+                        <button class="tab-btn" onclick="switchAdminTab('students')">
+                            👨‍🎓 Schüler verwalten
+                        </button>
+                        <button class="tab-btn" onclick="switchAdminTab('teachers')">
+                            👥 Benutzer verwalten
+                        </button>
+                        <button class="tab-btn" onclick="switchAdminTab('protocols')">
+                            📋 Alle Protokolle
+                        </button>
+                    </div>
+
+                    <!-- Sessions Tab -->
+                    <div id="sessionsTab" class="tab-content active">
+                        <div class="card-header">
+                            <span class="card-header-left">
+                                <span class="icon">⏰</span>
+                                <span>Einheiten-Verwaltung</span>
+                            </span>
+                            <button class="btn btn-success btn-small" onclick="openAddSessionModal()">
+                                ➕ Einheit hinzufügen
+                            </button>
+                        </div>
+                        
+                        <div class="filters" style="margin-bottom: 1.5rem;">
+                            <input type="text" id="filterSessionTeacher" class="filter-input" placeholder="🔍 Nach Lehrer suchen...">
+                            <input type="text" id="filterSessionStudent" class="filter-input" placeholder="🔍 Nach Schüler suchen...">
+                        </div>
+                        <div id="sessionsList"></div>
+                    </div>
+
+                    <!-- Students Tab -->
+                    <div id="studentsTab" class="tab-content">
+                        <div class="card-header">
+                            <span class="card-header-left">
+                                <span class="icon">👨‍🎓</span>
+                                <span>Schüler-Verwaltung</span>
+                            </span>
+                            <button class="btn btn-success btn-small" onclick="openAddStudentModal()">
+                                ➕ Schüler hinzufügen
+                            </button>
+                        </div>
+                        
+                        <div class="filters" style="margin-bottom: 1.5rem;">
+                            <input type="text" id="filterStudentName" class="filter-input" placeholder="🔍 Nach Schüler suchen...">
+                        </div>
+                        <div id="studentsList"></div>
+                    </div>
+
+                    <!-- Teachers Tab -->
+                    <div id="teachersTab" class="tab-content">
+                        <div class="filters" style="margin-bottom: 1.5rem;">
+                            <input type="text" id="filterTeacher" class="filter-input" placeholder="🔍 Nach Benutzer suchen...">
+                        </div>
+                        <div id="teachersList"></div>
+                    </div>
+
+                    <!-- Protocols Tab -->
+                    <div id="protocolsTab" class="tab-content">
+                        <div class="filters">
+                            <input type="text" id="adminFilterTeacher" class="filter-input" placeholder="🔍 Nach Lehrer filtern...">
+                            <input type="text" id="adminFilterStudent" class="filter-input" placeholder="🔍 Nach Schüler filtern...">
+                            <input type="text" id="adminFilterSubject" class="filter-input" placeholder="🔍 Nach Fach filtern...">
+                        </div>
+
+                        <button onclick="exportAllData()" class="btn btn-secondary" style="width: 100%; margin-bottom: 1.5rem;">
+                            📥 Alle Daten exportieren (JSON)
+                        </button>
+
+                        <div id="adminProtocolsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Neuer Schüler</h3>
+                <button class="modal-close" onclick="closeAddStudentModal()">✕</button>
+            </div>
+            <form id="addStudentForm">
+                <div class="form-group">
+                    <label for="studentName">Name *</label>
+                    <input type="text" id="studentName" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentGrade">Klasse/Stufe</label>
+                        <input type="text" id="studentGrade" placeholder="z.B. 10a">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentAge">Alter</label>
+                        <input type="number" id="studentAge" min="6" max="99">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="studentContact">Kontakt (optional)</label>
+                    <input type="text" id="studentContact" placeholder="z.B. Telefon oder E-Mail">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentNotes">Notizen (optional)</label>
+                    <textarea id="studentNotes" placeholder="Besonderheiten, Interessen, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Schüler erstellen</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div id="editStudentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Schüler bearbeiten</h3>
+                <button class="modal-close" onclick="closeEditStudentModal()">✕</button>
+            </div>
+            <form id="editStudentForm">
+                <input type="hidden" id="editStudentId">
+                <div class="form-group">
+                    <label for="editStudentName">Name *</label>
+                    <input type="text" id="editStudentName" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editStudentGrade">Klasse/Stufe</label>
+                        <input type="text" id="editStudentGrade" placeholder="z.B. 10a">
+                    </div>
+                    <div class="form-group">
+                        <label for="editStudentAge">Alter</label>
+                        <input type="number" id="editStudentAge" min="6" max="99">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStudentContact">Kontakt (optional)</label>
+                    <input type="text" id="editStudentContact" placeholder="z.B. Telefon oder E-Mail">
+                </div>
+
+                <div class="form-group">
+                    <label for="editStudentNotes">Notizen (optional)</label>
+                    <textarea id="editStudentNotes" placeholder="Besonderheiten, Interessen, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStudentStatus">Status</label>
+                    <select id="editStudentStatus">
+                        <option value="active">Aktiv</option>
+                        <option value="inactive">Inaktiv</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Änderungen speichern</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Session Modal -->
+    <div id="addSessionModal" class="modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Neue Einheit erstellen</h3>
+                <button class="modal-close" onclick="closeAddSessionModal()">✕</button>
+            </div>
+            <form id="addSessionForm">
+                <div class="form-group">
+                    <label for="sessionTeacher">Lehrer *</label>
+                    <select id="sessionTeacher" required>
+                        <option value="">Bitte wählen...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Schüler auswählen * (mehrere möglich)</label>
+                    <div id="sessionStudentsList" class="student-checkbox-list"></div>
+                    <div id="selectedStudentsPreview" class="selected-students-preview" style="display: none;">
+                        <span class="selected-count">0</span> Schüler ausgewählt
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionDate">Startdatum *</label>
+                    <input type="date" id="sessionDate" required onchange="showSelectedDate('sessionDate'); updateRepeatPreview();">
+                    <div id="sessionDateInfo" class="date-display"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sessionStartTime">Startzeit *</label>
+                        <input type="time" id="sessionStartTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionEndTime">Endzeit *</label>
+                        <input type="time" id="sessionEndTime" required>
+                    </div>
+                </div>
+
+                <!-- Wiederholungs-Optionen -->
+                <div class="repeat-section">
+                    <label class="repeat-toggle">
+                        <input type="checkbox" id="sessionRepeat" onchange="toggleRepeatOptions()">
+                        <span>🔄 Einheit wiederholen</span>
+                    </label>
+                    
+                    <div id="repeatOptions" class="repeat-options" style="display: none;">
+                        <div class="form-group">
+                            <label for="repeatType">Wiederholungsart</label>
+                            <select id="repeatType" onchange="toggleWeekdaySelection(); updateRepeatPreview();">
+                                <option value="daily">Täglich</option>
+                                <option value="weekly" selected>Wöchentlich (gleicher Wochentag)</option>
+                                <option value="weekdays">Bestimmte Wochentage</option>
+                            </select>
+                        </div>
+                        
+                        <div id="weekdaySelection" class="weekday-selection" style="display: none;">
+                            <label>Wochentage auswählen:</label>
+                            <div class="weekday-checkboxes">
+                                <label class="weekday-checkbox">
+                                    <input type="checkbox" value="1" onchange="updateRepeatPreview()"> Mo
+                                </label>
+                                <label class="weekday-checkbox">
+                                    <input type="checkbox" value="2" onchange="updateRepeatPreview()"> Di
+                                </label>
+                                <label class="weekday-checkbox">
+                                    <input type="checkbox" value="3" onchange="updateRepeatPreview()"> Mi
+                                </label>
+                                <label class="weekday-checkbox">
+                                    <input type="checkbox" value="4" onchange="updateRepeatPreview()"> Do
+                                </label>
+                                <label class="weekday-checkbox">
+                                    <input type="checkbox" value="5" onchange="updateRepeatPreview()"> Fr
+                                </label>
+                                <label class="weekday-checkbox">
+                                    <input type="checkbox" value="6" onchange="updateRepeatPreview()"> Sa
+                                </label>
+                                <label class="weekday-checkbox">
+                                    <input type="checkbox" value="0" onchange="updateRepeatPreview()"> So
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="repeatEndDate">Wiederholen bis (Enddatum) *</label>
+                            <input type="date" id="repeatEndDate" onchange="updateRepeatPreview()">
+                        </div>
+                        
+                        <div id="repeatPreview" class="repeat-preview"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sessionNotes">Notizen (optional)</label>
+                    <textarea id="sessionNotes" placeholder="z.B. Raum, besondere Hinweise..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Einheit erstellen</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Session Modal -->
+    <div id="editSessionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Einheit bearbeiten</h3>
+                <button class="modal-close" onclick="closeEditSessionModal()">✕</button>
+            </div>
+            <form id="editSessionForm">
+                <input type="hidden" id="editSessionId">
+                
+                <div class="form-group">
+                    <label for="editSessionTeacher">Lehrer *</label>
+                    <select id="editSessionTeacher" required>
+                        <option value="">Bitte wählen...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Schüler auswählen * (mehrere möglich)</label>
+                    <div id="editSessionStudentsList" class="student-checkbox-list"></div>
+                    <div id="editSelectedStudentsPreview" class="selected-students-preview" style="display: none;">
+                        <span class="selected-count">0</span> Schüler ausgewählt
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editSessionDate">Datum *</label>
+                    <input type="date" id="editSessionDate" required onchange="showSelectedDate('editSessionDate')">
+                    <div id="editSessionDateInfo" class="date-display"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editSessionStartTime">Startzeit *</label>
+                        <input type="time" id="editSessionStartTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editSessionEndTime">Endzeit *</label>
+                        <input type="time" id="editSessionEndTime" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editSessionNotes">Notizen (optional)</label>
+                    <textarea id="editSessionNotes" placeholder="z.B. Raum, besondere Hinweise..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Änderungen speichern</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Teacher Sessions Modal -->
+    <div id="teacherSessionsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="teacherSessionsTitle">Einheiten von Lehrer</h3>
+                <button class="modal-close" onclick="closeTeacherSessionsModal()">✕</button>
+            </div>
+            <div id="teacherSessionsContent"></div>
+        </div>
+    </div>
+
+    <!-- Anwesenheits-Modal -->
+    <div id="attendanceModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">📋 Anwesenheit eintragen</h3>
+                <button class="modal-close" onclick="closeAttendanceModal()">✕</button>
+            </div>
+            <div id="attendanceContent">
+                <div class="attendance-session-info">
+                    <div class="attendance-date" id="attendanceDate"></div>
+                    <div class="attendance-time" id="attendanceTime"></div>
+                    <div class="attendance-teacher" id="attendanceTeacher"></div>
+                </div>
+                
+                <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Schüler dieser Einheit:</h4>
+                <div class="attendance-students-list" id="attendanceStudentsList"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JavaScript Module -->
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/students.js"></script>
+    <script src="js/sessions.js"></script>
+    <script src="js/attendance.js"></script>
+    <script src="js/protocols.js"></script>
+    <script src="js/schedule.js"></script>
+    <script src="js/teachers.js"></script>
+    <script src="js/stats.js"></script>
+    <script>
+        // Event Listeners und Initialisierung
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystem();
+        });
+
+        // Filter Event Listeners
+        document.getElementById('filterStudent')?.addEventListener('input', loadTeacherProtocols);
+        document.getElementById('filterSubject')?.addEventListener('input', loadTeacherProtocols);
+        document.getElementById('adminFilterTeacher')?.addEventListener('input', loadAdminProtocols);
+        document.getElementById('adminFilterStudent')?.addEventListener('input', loadAdminProtocols);
+        document.getElementById('adminFilterSubject')?.addEventListener('input', loadAdminProtocols);
+        document.getElementById('filterStudentName')?.addEventListener('input', loadStudentsList);
+        document.getElementById('filterTeacher')?.addEventListener('input', loadTeachersList);
+        document.getElementById('filterSessionTeacher')?.addEventListener('input', loadSessionsList);
+        document.getElementById('filterSessionStudent')?.addEventListener('input', loadSessionsList);
+    </script>
+</body>
+</html>
