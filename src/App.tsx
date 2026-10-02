@@ -124,21 +124,21 @@ export default function App() {
               <div className="h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 text-primary-600">
                 <KeyRound size={32} />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">Neues Passwort setzen</h2>
-              <p className="text-gray-500 mt-2">
+              <h2 className="text-2xl font-bold text-slate-800">Neues Passwort setzen</h2>
+              <p className="text-slate-500 mt-2">
                 Bitte gib dein neues Passwort ein, um den Vorgang abzuschließen.
               </p>
             </div>
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Neues Passwort</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Neues Passwort</label>
                 <input
                   type="password"
                   required
                   minLength={6}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full p-3 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-primary-500"
                   placeholder="Mindestens 6 Zeichen"
                 />
               </div>
@@ -151,7 +151,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setRecoveryMode(false)}
-                className="w-full py-2 text-gray-400 hover:text-gray-600 text-sm"
+                className="w-full py-2 text-slate-400 hover:text-slate-600 text-sm"
               >
                 Abbrechen (Zum Dashboard)
               </button>

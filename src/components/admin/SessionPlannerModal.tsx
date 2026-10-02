@@ -187,14 +187,14 @@ export function SessionPlannerModal({
         {/* Lehrer + Datum */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">
               Lehrkraft
             </label>
             <select
               required
               value={form.teacher_id || ''}
               onChange={(e) => setForm({ ...form, teacher_id: e.target.value })}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all appearance-none cursor-pointer text-gray-700"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all appearance-none cursor-pointer text-slate-700"
             >
               <option value="">Bitte auswählen...</option>
               {teachers.map((t) => (
@@ -205,7 +205,7 @@ export function SessionPlannerModal({
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">
               Datum
             </label>
             <input
@@ -213,14 +213,14 @@ export function SessionPlannerModal({
               type="date"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all text-gray-700"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all text-slate-700"
             />
           </div>
         </div>
 
         {/* Standardzeit-Schnellwahl */}
         <div>
-          <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">
+          <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">
             Standardzeiten (100 Min.)
           </label>
           <div className="flex flex-wrap gap-2">
@@ -250,34 +250,34 @@ export function SessionPlannerModal({
         {/* Zeiten + Standort */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">Von</label>
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">Von</label>
             <input
               required
               type="time"
               value={form.start_time}
               onChange={(e) => setForm({ ...form, start_time: e.target.value })}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all text-gray-700"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all text-slate-700"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">Bis</label>
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">Bis</label>
             <input
               required
               type="time"
               value={form.end_time}
               onChange={(e) => setForm({ ...form, end_time: e.target.value })}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all text-gray-700"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all text-slate-700"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase mb-1.5 ml-1">
+            <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">
               Standort
             </label>
             <select
               required
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all appearance-none cursor-pointer text-gray-700"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 transition-all appearance-none cursor-pointer text-slate-700"
             >
               {LOCATIONS.map((loc) => (
                 <option key={loc} value={loc}>
@@ -345,7 +345,7 @@ export function SessionPlannerModal({
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-3">
             <div className="flex justify-between items-center mb-2 px-1">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">
+              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
                 Schüler auswählen
               </label>
               <span className="text-[10px] bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-primary-100">
@@ -424,7 +424,7 @@ export function SessionPlannerModal({
           </div>
 
           <div className="lg:col-span-2 flex flex-col h-full">
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ml-1">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 ml-1">
               Zusammenfassung
             </label>
             <div className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col shadow-inner">

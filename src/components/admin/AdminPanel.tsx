@@ -375,18 +375,18 @@ export function AdminPanel({ profile }: AdminPanelProps) {
       onClick={() => setTab(id)}
       className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-all rounded-lg mb-1 mx-1 ${
         tab === id
-          ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
-          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
+          ? 'bg-white text-primary-700 shadow-sm ring-1 ring-slate-200'
+          : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
       }`}
     >
-      <Icon size={18} className={tab === id ? 'text-primary-600' : 'text-gray-400'} />
+      <Icon size={18} className={tab === id ? 'text-primary-600' : 'text-slate-400'} />
       {label}
     </button>
   );
 
   return (
     <div className="space-y-6 animate-fade-in max-w-7xl mx-auto">
-      <div className="bg-gray-50/50 p-1.5 rounded-xl border border-gray-200 flex flex-wrap gap-1">
+      <div className="bg-slate-50/50 p-1.5 rounded-xl border border-slate-200 flex flex-wrap gap-1">
         <TabButton id="sessions" label="Einheiten" icon={Calendar} />
         <TabButton id="students" label="Schüler" icon={Users} />
         <TabButton id="teachers" label="Team" icon={Settings} />
@@ -394,27 +394,27 @@ export function AdminPanel({ profile }: AdminPanelProps) {
         <TabButton id="finance" label="Finanzen" icon={Euro} />
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 min-h-[600px] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 min-h-[600px] flex flex-col overflow-hidden">
         {/* ---------- FINANZEN ---------- */}
         {tab === 'finance' && (
           <div className="flex-1 flex flex-col">
-            <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3">
                 {financeTeacher !== 'all' && (
                   <button
                     onClick={() => setFinanceTeacher('all')}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-600"
+                    className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
                   >
                     <ChevronLeft size={24} />
                   </button>
                 )}
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">
+                  <h2 className="text-xl font-bold text-slate-900">
                     {financeTeacher === 'all'
                       ? 'Honorarübersicht Monat'
                       : `Abrechnung: ${teachers.find((t) => t.id === financeTeacher)?.name}`}
                   </h2>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-slate-500">
                     {financeTeacher === 'all'
                       ? 'Gesamthonorare aller Lehrkräfte'
                       : 'Einzelaufstellung der Protokolle'}
@@ -422,11 +422,11 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-200">
                   <select
                     value={month}
                     onChange={(e) => setMonth(parseInt(e.target.value))}
-                    className="bg-transparent text-sm font-medium text-gray-700 outline-none cursor-pointer py-1 px-2"
+                    className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer py-1 px-2"
                   >
                     {Array.from({ length: 12 }, (_, m) => (
                       <option key={m} value={m}>
@@ -437,7 +437,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                   <select
                     value={year}
                     onChange={(e) => setYear(parseInt(e.target.value))}
-                    className="bg-transparent text-sm font-medium text-gray-700 outline-none cursor-pointer py-1 px-2"
+                    className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer py-1 px-2"
                   >
                     {selectableYears().map((y) => (
                       <option key={y} value={y}>
@@ -448,7 +448,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                 </div>
                 <button
                   onClick={exportFinance}
-                  className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                  className="flex items-center gap-2 bg-slate-100 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-200 transition-colors text-sm font-medium"
                 >
                   <Download size={16} /> Export
                 </button>
@@ -458,7 +458,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
             <div className="overflow-x-auto flex-1">
               {financeTeacher === 'all' ? (
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 text-gray-500 font-bold uppercase tracking-wider text-[10px] border-b border-gray-100 sticky top-0">
+                  <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100 sticky top-0">
                     <tr>
                       <th className="px-8 py-4">Lehrkraft</th>
                       <th className="px-6 py-4 text-center">Einheiten</th>
@@ -467,10 +467,10 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                       <th className="px-6 py-4 w-10"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-slate-50">
                     {feeSummary.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="p-20 text-center text-gray-400 italic">
+                        <td colSpan={5} className="p-20 text-center text-slate-400 italic">
                           Keine Abrechnungsdaten für diesen Monat gefunden.
                         </td>
                       </tr>
@@ -482,23 +482,23 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                           className="hover:bg-primary-50/50 transition-colors cursor-pointer group"
                         >
                           <td className="px-8 py-5">
-                            <div className="font-bold text-gray-900 group-hover:text-primary-700 transition-colors flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors">
+                            <div className="font-bold text-slate-900 group-hover:text-primary-700 transition-colors flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-500 group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors">
                                 {row.name.charAt(0)}
                               </div>
                               {row.name}
                             </div>
                           </td>
-                          <td className="px-6 py-5 text-center font-medium text-gray-600">
+                          <td className="px-6 py-5 text-center font-medium text-slate-600">
                             {row.count} EH
                           </td>
-                          <td className="px-6 py-5 text-right font-medium text-gray-600">
+                          <td className="px-6 py-5 text-right font-medium text-slate-600">
                             {row.hours} Std
                           </td>
                           <td className="px-8 py-5 text-right font-medium text-slate-900 text-base">
                             € {row.fee}
                           </td>
-                          <td className="px-6 py-5 text-gray-300 group-hover:text-primary-400 transition-colors">
+                          <td className="px-6 py-5 text-slate-300 group-hover:text-primary-400 transition-colors">
                             <ChevronRight size={20} />
                           </td>
                         </tr>
@@ -530,7 +530,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                 </table>
               ) : (
                 <table className="w-full text-left text-sm animate-fade-in">
-                  <thead className="bg-gray-50 text-gray-500 font-bold uppercase tracking-wider text-[10px] border-b border-gray-100 sticky top-0">
+                  <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100 sticky top-0">
                     <tr>
                       <th className="px-8 py-4 w-32">Datum</th>
                       <th className="px-6 py-4">Einheit / Thema</th>
@@ -538,24 +538,24 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                       <th className="px-8 py-4 text-right w-32">Honorar</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-slate-50">
                     {financeProtocols.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="p-20 text-center text-gray-400 italic">
+                        <td colSpan={4} className="p-20 text-center text-slate-400 italic">
                           Keine Protokolle für diese Lehrkraft in diesem Monat.
                         </td>
                       </tr>
                     ) : (
                       financeProtocols.map((p) => (
-                        <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-8 py-5 text-gray-600 font-medium">
+                        <tr key={p.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-8 py-5 text-slate-600 font-medium">
                             {new Date(p.date).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-5">
                             <div className="font-bold text-primary-700">{p.subject}</div>
-                            <div className="text-xs text-gray-500 mt-0.5 italic">{p.topic}</div>
+                            <div className="text-xs text-slate-500 mt-0.5 italic">{p.topic}</div>
                           </td>
-                          <td className="px-6 py-5 text-right font-medium text-gray-600">
+                          <td className="px-6 py-5 text-right font-medium text-slate-600">
                             {p.duration} Min
                           </td>
                           <td className="px-8 py-5 text-right font-medium text-slate-900">
@@ -587,10 +587,10 @@ export function AdminPanel({ profile }: AdminPanelProps) {
         {/* ---------- EINHEITEN ---------- */}
         {tab === 'sessions' && (
           <div className="flex-1 flex flex-col">
-            <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Stundenplan Verwaltung</h2>
-                <p className="text-sm text-gray-500">Alle geplanten Einheiten</p>
+                <h2 className="text-xl font-bold text-slate-900">Stundenplan Verwaltung</h2>
+                <p className="text-sm text-slate-500">Alle geplanten Einheiten</p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2">
@@ -598,14 +598,14 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                     type="date"
                     value={dateFrom}
                     onChange={(e) => setDateFrom(e.target.value)}
-                    className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg p-2 outline-none"
+                    className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg p-2 outline-none"
                   />
-                  <span className="text-gray-400">-</span>
+                  <span className="text-slate-400">-</span>
                   <input
                     type="date"
                     value={dateTo}
                     onChange={(e) => setDateTo(e.target.value)}
-                    className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg p-2 outline-none"
+                    className="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg p-2 outline-none"
                   />
                   {(dateFrom || dateTo) && (
                     <button
@@ -613,20 +613,20 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                         setDateFrom('');
                         setDateTo('');
                       }}
-                      className="text-gray-400 hover:text-red-500"
+                      className="text-slate-400 hover:text-red-500"
                     >
                       <X size={18} />
                     </button>
                   )}
                 </div>
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 w-48 transition-all">
-                  <Search size={16} className="text-gray-400" />
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 w-48 transition-all">
+                  <Search size={16} className="text-slate-400" />
                   <input
                     type="text"
                     placeholder="Suchen..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="bg-transparent outline-none text-sm text-gray-700 w-full"
+                    className="bg-transparent outline-none text-sm text-slate-700 w-full"
                   />
                 </div>
                 <button
@@ -642,7 +642,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
             </div>
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 text-gray-500 font-medium border-b border-gray-100">
+                <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-100">
                   <tr>
                     <th className="px-6 py-4 w-48">Zeitpunkt</th>
                     <th className="px-6 py-4 w-48">Lehrer</th>
@@ -650,20 +650,20 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                     <th className="px-6 py-4 text-right w-32">Aktion</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-slate-50">
                   {filteredSessions.map((s) => (
-                    <tr key={s.id} className="hover:bg-gray-50 transition-colors group">
+                    <tr key={s.id} className="hover:bg-slate-50 transition-colors group">
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900">
+                        <div className="font-semibold text-slate-900">
                           {new Date(s.date).toLocaleDateString('de-DE')}
                         </div>
-                        <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                        <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
                           <Calendar size={12} /> {shortTime(s.start_time)} - {shortTime(s.end_time)}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-medium text-gray-700">{s.teacher_name || '-'}</div>
-                        <div className="text-xs text-gray-400 mt-0.5">{s.location}</div>
+                        <div className="font-medium text-slate-700">{s.teacher_name || '-'}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">{s.location}</div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-2">
@@ -686,13 +686,13 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => openEditSession(s)}
-                            className="p-2 text-gray-400 hover:text-primary-600 rounded hover:bg-white"
+                            className="p-2 text-slate-400 hover:text-primary-600 rounded hover:bg-white"
                           >
                             <SquarePen size={16} />
                           </button>
                           <button
                             onClick={() => deleteSession(s.id)}
-                            className="p-2 text-gray-400 hover:text-red-600 rounded hover:bg-white"
+                            className="p-2 text-slate-400 hover:text-red-600 rounded hover:bg-white"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -711,18 +711,18 @@ export function AdminPanel({ profile }: AdminPanelProps) {
           <div className="p-6">
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Schülerverzeichnis</h2>
-                <p className="text-sm text-gray-500">{filteredStudents.length} Schüler</p>
+                <h2 className="text-xl font-bold text-slate-900">Schülerverzeichnis</h2>
+                <p className="text-sm text-slate-500">{filteredStudents.length} Schüler</p>
               </div>
               <div className="flex items-center gap-3 w-full md:w-auto">
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 flex-1 md:w-64 transition-all">
-                  <Search size={16} className="text-gray-400" />
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 flex-1 md:w-64 transition-all">
+                  <Search size={16} className="text-slate-400" />
                   <input
                     type="text"
                     placeholder="Name, Klasse, Adresse..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="bg-transparent outline-none text-sm text-gray-700 w-full"
+                    className="bg-transparent outline-none text-sm text-slate-700 w-full"
                   />
                 </div>
                 <button
@@ -740,12 +740,12 @@ export function AdminPanel({ profile }: AdminPanelProps) {
               {filteredStudents.map((s) => (
                 <div
                   key={s.id}
-                  className="group bg-white rounded-xl border border-gray-200 p-5 hover:shadow-lg hover:border-primary-100 transition-all duration-200 relative overflow-hidden"
+                  className="group bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg hover:border-primary-100 transition-all duration-200 relative overflow-hidden"
                 >
                   <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                     <button
                       onClick={() => setHistoryStudent({ id: s.id, name: s.name })}
-                      className="p-1.5 bg-white shadow-sm border rounded text-gray-500 hover:text-primary-600"
+                      className="p-1.5 bg-white shadow-sm border rounded text-slate-500 hover:text-primary-600"
                       title="Verlauf"
                     >
                       <Clock size={14} />
@@ -755,13 +755,13 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                         setEditStudent(s);
                         setStudentModalOpen(true);
                       }}
-                      className="p-1.5 bg-white shadow-sm border rounded text-gray-500 hover:text-primary-600"
+                      className="p-1.5 bg-white shadow-sm border rounded text-slate-500 hover:text-primary-600"
                     >
                       <SquarePen size={14} />
                     </button>
                     <button
                       onClick={() => deleteStudent(s.id)}
-                      className="p-1.5 bg-white shadow-sm border rounded text-gray-500 hover:text-red-600"
+                      className="p-1.5 bg-white shadow-sm border rounded text-slate-500 hover:text-red-600"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -771,19 +771,19 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                       {s.name.charAt(0)}
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900">{s.name}</h3>
-                      <p className="text-xs text-gray-500">
+                      <h3 className="font-bold text-slate-900">{s.name}</h3>
+                      <p className="text-xs text-slate-500">
                         {s.grade ? `Klasse ${s.grade}` : 'Keine Klasse'}
                       </p>
                     </div>
                   </div>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex justify-between py-1 border-b border-gray-50">
-                      <span className="text-gray-400">Alter</span>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <div className="flex justify-between py-1 border-b border-slate-50">
+                      <span className="text-slate-400">Alter</span>
                       <span>{ageFromBirthDate(s.birth_date)} Jahre</span>
                     </div>
-                    <div className="flex justify-between py-1 border-b border-gray-50">
-                      <span className="text-gray-400">Kontakt</span>
+                    <div className="flex justify-between py-1 border-b border-slate-50">
+                      <span className="text-slate-400">Kontakt</span>
                       <span className="truncate max-w-[150px]">{s.parents || '-'}</span>
                     </div>
                   </div>
@@ -798,18 +798,18 @@ export function AdminPanel({ profile }: AdminPanelProps) {
           <div className="p-6 overflow-y-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Team-Verwaltung</h2>
-                <p className="text-sm text-gray-500">Lehrer und Profile</p>
+                <h2 className="text-xl font-bold text-slate-900">Team-Verwaltung</h2>
+                <p className="text-sm text-slate-500">Lehrer und Profile</p>
               </div>
               <div className="flex items-center gap-3 w-full md:w-auto">
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 flex-1 md:w-64 transition-all">
-                  <Search size={16} className="text-gray-400" />
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 flex-1 md:w-64 transition-all">
+                  <Search size={16} className="text-slate-400" />
                   <input
                     type="text"
                     placeholder="Name oder Email..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="bg-transparent outline-none text-sm text-gray-700 w-full"
+                    className="bg-transparent outline-none text-sm text-slate-700 w-full"
                   />
                 </div>
                 <button
@@ -823,29 +823,29 @@ export function AdminPanel({ profile }: AdminPanelProps) {
 
             {invites.length > 0 && (
               <div className="mb-8 animate-fade-in">
-                <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                   Ausstehende Einladungen
                 </h3>
-                <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-50">
+                <div className="bg-white rounded-lg border border-slate-200 divide-y divide-slate-50">
                   {invites.map((inv) => (
                     <div
                       key={inv.id}
-                      className="p-4 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
+                      className="p-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <Mail size={18} className="text-primary-400" />
                         <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
-                          <span className="text-sm font-medium text-gray-900">{inv.name}</span>
-                          <span className="text-xs text-gray-400">{inv.email}</span>
+                          <span className="text-sm font-medium text-slate-900">{inv.name}</span>
+                          <span className="text-xs text-slate-400">{inv.email}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                        <span className="text-xs text-slate-400 font-medium flex items-center gap-1">
                           <Clock size={12} /> {new Date(inv.invited_at).toLocaleDateString()}
                         </span>
                         <button
                           onClick={() => withdrawInvite(inv.id)}
-                          className="text-gray-300 hover:text-red-500 transition-colors"
+                          className="text-slate-300 hover:text-red-500 transition-colors"
                           title="Löschen"
                         >
                           <Trash2 size={14} />
@@ -857,14 +857,14 @@ export function AdminPanel({ profile }: AdminPanelProps) {
               </div>
             )}
 
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
               <CheckCircle size={14} /> Aktive Nutzer
             </h3>
             <div className="grid gap-4">
               {filteredTeachers.map((t) => (
                 <div
                   key={t.id}
-                  className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors bg-white shadow-sm group"
+                  className="flex items-center justify-between p-4 border border-slate-100 rounded-xl hover:bg-slate-50 transition-colors bg-white shadow-sm group"
                 >
                   <div className="flex items-center gap-4">
                     <div
@@ -875,10 +875,10 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                       {t.name.charAt(0)}
                     </div>
                     <div className="cursor-pointer" onClick={() => setFinanceTeacher(t.id)}>
-                      <div className="font-bold text-gray-800 group-hover:text-primary-600 transition-colors">
+                      <div className="font-bold text-slate-800 group-hover:text-primary-600 transition-colors">
                         {t.name}
                       </div>
-                      <div className="text-xs text-gray-500">{t.email}</div>
+                      <div className="text-xs text-slate-500">{t.email}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
@@ -887,7 +887,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                         {t.is_super_admin ? 'Super-Admin' : 'Admin'}
                       </span>
                     ) : (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full font-semibold">
+                      <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-semibold">
                         Lehrer
                       </span>
                     )}
@@ -897,7 +897,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                           setTab('finance');
                           setFinanceTeacher(t.id);
                         }}
-                        className="p-2 text-gray-400 hover:text-primary-600 hover:bg-white rounded transition-colors"
+                        className="p-2 text-slate-400 hover:text-primary-600 hover:bg-white rounded transition-colors"
                         title="Honorar ansehen"
                       >
                         <Euro size={16} />
@@ -907,7 +907,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                           setEditTeacher(t);
                           setTeacherModalOpen(true);
                         }}
-                        className="p-2 text-gray-400 hover:text-primary-600 hover:bg-white rounded transition-colors"
+                        className="p-2 text-slate-400 hover:text-primary-600 hover:bg-white rounded transition-colors"
                       >
                         <SquarePen size={16} />
                       </button>
@@ -915,7 +915,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                       {!t.is_super_admin && (
                         <button
                           onClick={() => deleteTeacher(t.id)}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-white rounded transition-colors"
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-white rounded transition-colors"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -931,17 +931,17 @@ export function AdminPanel({ profile }: AdminPanelProps) {
         {/* ---------- PROTOKOLLE ---------- */}
         {tab === 'protocols' && (
           <div className="flex-1 flex flex-col">
-            <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Protokoll Archiv</h2>
-                <p className="text-sm text-gray-500">{filteredProtocols.length} Einträge</p>
+                <h2 className="text-xl font-bold text-slate-900">Protokoll Archiv</h2>
+                <p className="text-sm text-slate-500">{filteredProtocols.length} Einträge</p>
               </div>
               <div className="flex items-center gap-3 w-full md:w-auto">
-                <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-lg border border-gray-200">
+                <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-lg border border-slate-200">
                   <select
                     value={month}
                     onChange={(e) => setMonth(parseInt(e.target.value))}
-                    className="bg-transparent text-sm font-medium text-gray-700 outline-none cursor-pointer py-1 px-2"
+                    className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer py-1 px-2"
                   >
                     {Array.from({ length: 12 }, (_, m) => (
                       <option key={m} value={m}>
@@ -952,7 +952,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                   <select
                     value={year}
                     onChange={(e) => setYear(parseInt(e.target.value))}
-                    className="bg-transparent text-sm font-medium text-gray-700 outline-none cursor-pointer py-1 px-2"
+                    className="bg-transparent text-sm font-medium text-slate-700 outline-none cursor-pointer py-1 px-2"
                   >
                     {selectableYears().map((y) => (
                       <option key={y} value={y}>
@@ -961,19 +961,19 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                     ))}
                   </select>
                 </div>
-                <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 flex-1 md:w-64 transition-all">
-                  <Search size={16} className="text-gray-400" />
+                <div className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 flex-1 md:w-64 transition-all">
+                  <Search size={16} className="text-slate-400" />
                   <input
                     type="text"
                     placeholder="Fach, Thema, Lehrer..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="bg-transparent outline-none text-sm text-gray-700 w-full"
+                    className="bg-transparent outline-none text-sm text-slate-700 w-full"
                   />
                 </div>
                 <button
                   onClick={exportAllProtocols}
-                  className="flex items-center gap-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 transition-all text-sm font-medium whitespace-nowrap"
+                  className="flex items-center gap-2 text-slate-600 hover:text-primary-600 hover:bg-slate-50 px-4 py-2 rounded-lg border border-slate-200 transition-all text-sm font-medium whitespace-nowrap"
                 >
                   <FileText size={16} /> Export
                 </button>
@@ -981,7 +981,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
             </div>
             <div className="overflow-x-auto flex-1">
               <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 text-gray-500 font-medium border-b border-gray-100 sticky top-0">
+                <thead className="bg-slate-50 text-slate-500 font-medium border-b border-slate-100 sticky top-0">
                   <tr>
                     <th className="px-6 py-4 w-32">Datum</th>
                     <th className="px-6 py-4 w-48">Lehrer</th>
@@ -990,7 +990,7 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                     <th className="px-6 py-4 text-right w-32">Optionen</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-slate-50">
                   {filteredProtocols.map((p) => {
                     const present =
                       p.protocol_attendance?.filter(
@@ -998,14 +998,14 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                       ).length || 0;
                     const total = p.protocol_attendance?.length || 0;
                     return (
-                      <tr key={p.id} className="hover:bg-gray-50 transition-colors group">
-                        <td className="px-6 py-4 font-medium text-gray-900">
+                      <tr key={p.id} className="hover:bg-slate-50 transition-colors group">
+                        <td className="px-6 py-4 font-medium text-slate-900">
                           {new Date(p.date).toLocaleDateString()}
                         </td>
-                        <td className="px-6 py-4 text-gray-600">{p.teacher_name}</td>
+                        <td className="px-6 py-4 text-slate-600">{p.teacher_name}</td>
                         <td className="px-6 py-4">
                           <div className="font-semibold text-primary-700">{p.subject}</div>
-                          <div className="text-gray-500 text-xs">{p.topic}</div>
+                          <div className="text-slate-500 text-xs">{p.topic}</div>
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span
@@ -1022,13 +1022,13 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                           <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => openProtocolForProtocol(p)}
-                              className="p-2 text-gray-400 hover:text-primary-600 rounded hover:bg-white"
+                              className="p-2 text-slate-400 hover:text-primary-600 rounded hover:bg-white"
                             >
                               <SquarePen size={16} />
                             </button>
                             <button
                               onClick={() => deleteProtocol(p.id)}
-                              className="p-2 text-gray-400 hover:text-red-600 rounded hover:bg-white"
+                              className="p-2 text-slate-400 hover:text-red-600 rounded hover:bg-white"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -1069,24 +1069,24 @@ export function AdminPanel({ profile }: AdminPanelProps) {
         <ModalWrapper title="Lehrer Einladen" onClose={() => setInviteModalOpen(false)}>
           <form onSubmit={handleInvite} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
               <input
                 required
                 type="text"
                 value={inviteName}
                 onChange={(e) => setInviteName(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg outline-none transition-all focus:ring-2 focus:ring-primary-500"
+                className="w-full p-2 border border-slate-300 rounded-lg outline-none transition-all focus:ring-2 focus:ring-primary-500"
                 placeholder="Max Mustermann"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">E-Mail</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">E-Mail</label>
               <input
                 required
                 type="email"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg outline-none transition-all focus:ring-2 focus:ring-primary-500"
+                className="w-full p-2 border border-slate-300 rounded-lg outline-none transition-all focus:ring-2 focus:ring-primary-500"
                 placeholder="max@schule.at"
               />
             </div>
@@ -1102,29 +1102,29 @@ export function AdminPanel({ profile }: AdminPanelProps) {
         <ModalWrapper title="Benutzer Bearbeiten" onClose={() => setTeacherModalOpen(false)}>
           <form onSubmit={saveTeacher} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
               <input
                 required
                 type="text"
                 value={editTeacher.name || ''}
                 onChange={(e) => setEditTeacher({ ...editTeacher, name: e.target.value })}
-                className="w-full p-2 border border-gray-300 rounded-lg outline-none transition-all focus:ring-2 focus:ring-primary-500"
+                className="w-full p-2 border border-slate-300 rounded-lg outline-none transition-all focus:ring-2 focus:ring-primary-500"
               />
             </div>
             {/* Admin-Rechte vergibt laut DB-Regel nur ein Super-Admin.
                 Der Schalter erscheint daher nur für Super-Admins. */}
             {profile.is_super_admin ? (
-              <div className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
+              <div className="flex items-center gap-2 p-2 bg-slate-50 rounded border border-slate-200">
                 <input
                   type="checkbox"
                   checked={editTeacher.is_admin || false}
                   onChange={(e) => setEditTeacher({ ...editTeacher, is_admin: e.target.checked })}
-                  className="h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                  className="h-4 w-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
                 />
-                <label className="text-sm text-gray-700">Administrator-Rechte</label>
+                <label className="text-sm text-slate-700">Administrator-Rechte</label>
               </div>
             ) : (
-              <div className="text-xs text-gray-400 bg-gray-50 p-2 rounded border border-gray-200">
+              <div className="text-xs text-slate-400 bg-slate-50 p-2 rounded border border-slate-200">
                 Admin-Rechte können nur von einem Super-Admin geändert werden.
               </div>
             )}
@@ -1170,9 +1170,9 @@ function ModalWrapper({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800">{title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+        <div className="flex justify-between items-center p-6 border-b border-slate-100">
+          <h3 className="text-xl font-bold text-slate-800">{title}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <X size={24} />
           </button>
         </div>

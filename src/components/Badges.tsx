@@ -1,6 +1,43 @@
 import { CircleCheckBig, CircleX, Clock, GraduationCap } from 'lucide-react';
 import type { AttendanceStatus, ExamType, GradeSymbol } from '../types';
 
+/*
+ * Farbsystem der Anwendung — gilt für alle Komponenten:
+ *   primary  Aktionen, aktive Zustände, Akzente (die einzige "bunte" Farbe
+ *            für Bedienelemente — darum nie für Inhalte verwenden)
+ *   slate    alle neutralen Flächen, Texte, Rahmen
+ *   emerald  positiv, erledigt, anwesend
+ *   amber    braucht Aufmerksamkeit, offen, verspätet
+ *   red      negativ, Fehler, löschen
+ *   navy     nur die Sidebar
+ *
+ * Badges sind durchgehend aufgebaut als: bg-<farbe>-50, border-<farbe>-200,
+ * text-<farbe>-700.
+ */
+
+/** Einheitlicher Aufbau aller Badges. */
+const BADGE = 'px-2 py-0.5 rounded text-xs font-bold border';
+
+/** Neutrales Badge für "kein Wert vorhanden". */
+const NEUTRAL = 'text-slate-400 bg-slate-50 border-slate-200';
+
+/**
+ * Gemeinsame, fünfstufige Skala von gut (Index 0) nach schlecht (Index 4).
+ *
+ * Beide Bewertungen im Projekt greifen darauf zu, nur in umgekehrter
+ * Richtung — eine gute Leistung sieht damit überall gleich aus, obwohl die
+ * Zahlen gegenläufig sind (laufende Bewertung 5 = sehr gut, Schulnote
+ * 1 = Sehr gut). Die Mitte ist absichtlich neutral und nicht blau, weil
+ * blau in dieser Anwendung für Bedienelemente reserviert ist.
+ */
+const RATING_SCALE = [
+  'text-emerald-700 bg-emerald-50 border-emerald-200',
+  'text-emerald-600 bg-emerald-50/60 border-emerald-100',
+  'text-slate-600 bg-slate-50 border-slate-200',
+  'text-amber-700 bg-amber-50 border-amber-200',
+  'text-red-700 bg-red-50 border-red-200',
+] as const;
+
 /**
  * Badge für den Anwesenheitsstatus. Unterscheidet alle vier Zustände
  * korrekt — im alten Build wurden "Verspätet" und "Entschuldigt"
@@ -10,70 +47,54 @@ export function AttendanceBadge({ status }: { status: AttendanceStatus }) {
   switch (status) {
     case 'present':
       return (
-        <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-xs font-bold border border-emerald-100">
+        <span className={`${BADGE} ${RATING_SCALE[0]} flex items-center gap-1`}>
           <CircleCheckBig size={12} /> Anwesend
         </span>
       );
     case 'absent':
       return (
-        <span className="flex items-center gap-1 text-red-600 bg-red-50 px-2 py-0.5 rounded text-xs font-bold border border-red-100">
+        <span className={`${BADGE} ${RATING_SCALE[4]} flex items-center gap-1`}>
           <CircleX size={12} /> Fehlt
         </span>
       );
     case 'late':
       return (
-        <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-0.5 rounded text-xs font-bold border border-amber-100">
+        <span className={`${BADGE} ${RATING_SCALE[3]} flex items-center gap-1`}>
           <Clock size={12} /> Verspätet
         </span>
       );
     case 'excused':
-      return (
-        <span className="text-slate-600 bg-slate-50 px-2 py-0.5 rounded text-xs font-bold border border-slate-100">
-          Entschuldigt
-        </span>
-      );
+      return <span className={`${BADGE} ${RATING_SCALE[2]}`}>Entschuldigt</span>;
     default:
       return null;
   }
 }
 
-/** Kleines, farbiges Badge für die Bewertungsstufe (1-5). */
+/**
+ * Badge für die laufende Bewertung pro Einheit (1-5, wobei 5 sehr gut ist).
+ */
 export function ProgressBadge({ progress }: { progress: number | null | undefined }) {
-  if (!progress) {
-    return (
-      <span className="text-gray-400 bg-gray-50 px-2 py-0.5 rounded text-xs font-bold border border-gray-100">
-        Keine Bewertung
-      </span>
-    );
-  }
-
-  const map: Record<number, { text: string; className: string }> = {
-    5: { text: 'Sehr gut', className: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
-    4: { text: 'Gut', className: 'text-green-700 bg-green-50 border-green-100' },
-    3: { text: 'Basis / Ok', className: 'text-blue-700 bg-blue-50 border-blue-100' },
-    2: { text: 'Schwierigkeiten', className: 'text-amber-700 bg-amber-50 border-amber-100' },
-    1: { text: 'Schlecht', className: 'text-red-700 bg-red-50 border-red-100' },
+  const labels: Record<number, string> = {
+    5: 'Sehr gut',
+    4: 'Gut',
+    3: 'Basis / Ok',
+    2: 'Schwierigkeiten',
+    1: 'Schlecht',
   };
 
-  const entry = map[progress];
-  if (!entry) {
-    return (
-      <span className="text-gray-400 bg-gray-50 px-2 py-0.5 rounded text-xs font-bold border border-gray-100">
-        Keine Bewertung
-      </span>
-    );
+  const label = progress ? labels[progress] : undefined;
+  if (!label) {
+    return <span className={`${BADGE} ${NEUTRAL}`}>Keine Bewertung</span>;
   }
 
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-bold border ${entry.className}`}>
-      {entry.text}
-    </span>
-  );
+  // 5 ist die beste Stufe, also Skalenanfang.
+  return <span className={`${BADGE} ${RATING_SCALE[5 - progress!]}`}>{label}</span>;
 }
 
 /**
- * Badge für eine Schulnote (1-5). Umgekehrte Skala zur laufenden
- * Bewertung: hier ist 1 die beste Note.
+ * Badge für die Bewertung einer Leistung: Schulnote 1-5 (1 = Sehr gut)
+ * und/oder Symbol (+ ~ −). Nutzt dieselbe Skala wie ProgressBadge, nur in
+ * umgekehrter Richtung.
  */
 export function GradeBadge({
   grade,
@@ -82,59 +103,38 @@ export function GradeBadge({
   grade?: number | null;
   symbol?: GradeSymbol | null;
 }) {
-  const map: Record<number, string> = {
-    1: 'text-emerald-700 bg-emerald-50 border-emerald-100',
-    2: 'text-green-700 bg-green-50 border-green-100',
-    3: 'text-blue-700 bg-blue-50 border-blue-100',
-    4: 'text-amber-700 bg-amber-50 border-amber-100',
-    5: 'text-red-700 bg-red-50 border-red-100',
+  const symbolScale: Record<GradeSymbol, string> = {
+    '+': RATING_SCALE[0],
+    '~': RATING_SCALE[2],
+    '-': RATING_SCALE[4],
   };
 
-  const symbolMap: Record<GradeSymbol, string> = {
-    '+': 'text-emerald-700 bg-emerald-50 border-emerald-100',
-    '~': 'text-amber-700 bg-amber-50 border-amber-100',
-    '-': 'text-red-700 bg-red-50 border-red-100',
-  };
+  if (!grade && !symbol) {
+    return <span className={`${BADGE} ${NEUTRAL}`}>Offen</span>;
+  }
 
   return (
     <span className="flex items-center gap-1">
       {grade ? (
-        <span
-          className={`px-2 py-0.5 rounded text-xs font-bold border ${
-            map[grade] || 'text-gray-500 bg-gray-50 border-gray-100'
-          }`}
-        >
-          Note {grade}
-        </span>
+        <span className={`${BADGE} ${RATING_SCALE[grade - 1] || NEUTRAL}`}>Note {grade}</span>
       ) : null}
       {symbol ? (
-        <span
-          className={`w-6 text-center py-0.5 rounded text-xs font-bold border ${symbolMap[symbol]}`}
-        >
+        <span className={`${BADGE} ${symbolScale[symbol]} w-7 text-center`}>
           {symbol === '-' ? '–' : symbol}
-        </span>
-      ) : null}
-      {!grade && !symbol ? (
-        <span className="text-gray-400 bg-gray-50 px-2 py-0.5 rounded text-xs font-bold border border-gray-100">
-          Offen
         </span>
       ) : null}
     </span>
   );
 }
 
-/** Badge für die Prüfungsart (Schularbeit / Test / Prüfung). */
+/**
+ * Badge für die Prüfungsart. Bewusst neutral: die Farbe am Eintrag soll die
+ * Bewertung zeigen, nicht die Art der Prüfung. Unterschieden wird über den
+ * Text.
+ */
 export function ExamTypeBadge({ type }: { type: ExamType }) {
-  const map: Record<ExamType, string> = {
-    Schularbeit: 'text-violet-700 bg-violet-50 border-violet-100',
-    Test: 'text-sky-700 bg-sky-50 border-sky-100',
-    Prüfung: 'text-indigo-700 bg-indigo-50 border-indigo-100',
-  };
-
   return (
-    <span
-      className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold border ${map[type]}`}
-    >
+    <span className={`${BADGE} ${RATING_SCALE[2]} flex items-center gap-1`}>
       <GraduationCap size={12} /> {type}
     </span>
   );

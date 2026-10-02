@@ -520,7 +520,7 @@ export function ProtocolModal({
                   type="button"
                   onClick={requestSubstitution}
                   disabled={saving}
-                  className="flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-lg transition-all"
+                  className="flex items-center gap-2 text-xs font-bold text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-200 px-3 py-1.5 rounded-lg transition-all"
                 >
                   {saving ? (
                     'Sende Anfrage...'
@@ -537,36 +537,36 @@ export function ProtocolModal({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Anwesenheit & Bewertung */}
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-            <div className="bg-gray-50 px-5 py-4 border-b border-gray-200 flex items-center gap-2">
-              <UserPlus size={18} className="text-gray-500" />
-              <h4 className="font-bold text-gray-700 text-sm uppercase tracking-wide">
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="bg-slate-50 px-5 py-4 border-b border-slate-200 flex items-center gap-2">
+              <UserPlus size={18} className="text-slate-500" />
+              <h4 className="font-bold text-slate-700 text-sm uppercase tracking-wide">
                 Anwesenheit &amp; Bewertung
               </h4>
             </div>
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-slate-100">
               {rows.length === 0 && (
-                <div className="p-6 text-center text-gray-400 text-sm">
+                <div className="p-6 text-center text-slate-400 text-sm">
                   Keine Schüler in dieser Einheit zugeordnet.
                 </div>
               )}
               {rows.map((row) => (
-                <div key={row.student_id} className="p-5 hover:bg-gray-50 transition-colors group">
+                <div key={row.student_id} className="p-5 hover:bg-slate-50 transition-colors group">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
                     <div className="flex items-center gap-3 lg:w-1/4">
-                      <span className="font-bold text-gray-800 text-lg">{row.student_name}</span>
+                      <span className="font-bold text-slate-800 text-lg">{row.student_name}</span>
                       <button
                         type="button"
                         onClick={() =>
                           setHistoryStudent({ id: row.student_id, name: row.student_name })
                         }
-                        className="text-gray-400 hover:text-primary-600 hover:bg-white p-1.5 rounded-lg border border-transparent hover:border-gray-200 transition-all"
+                        className="text-slate-400 hover:text-primary-600 hover:bg-white p-1.5 rounded-lg border border-transparent hover:border-slate-200 transition-all"
                         title="Verlauf anzeigen"
                       >
                         <Clock size={16} />
                       </button>
                     </div>
-                    <div className="flex gap-1.5 bg-gray-100/80 p-1.5 rounded-xl self-start border border-gray-200">
+                    <div className="flex gap-1.5 bg-slate-100/80 p-1.5 rounded-xl self-start border border-slate-200">
                       {ATTENDANCE_OPTIONS.map((opt) => (
                         <button
                           key={opt.key}
@@ -574,8 +574,8 @@ export function ProtocolModal({
                           onClick={() => updateRow(row.student_id, 'attendance', opt.key)}
                           className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
                             row.attendance === opt.key
-                              ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
-                              : 'text-gray-500 hover:text-gray-900 hover:bg-gray-200/50'
+                              ? 'bg-white text-primary-700 shadow-sm ring-1 ring-slate-200'
+                              : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
                           }`}
                         >
                           {opt.label}
@@ -583,7 +583,7 @@ export function ProtocolModal({
                       ))}
                     </div>
                     <div className="flex items-center gap-2 self-start lg:self-center w-full lg:w-auto">
-                      <label className="text-xs text-gray-400 font-bold uppercase whitespace-nowrap lg:hidden">
+                      <label className="text-xs text-slate-400 font-bold uppercase whitespace-nowrap lg:hidden">
                         Bewertung:
                       </label>
                       <select
@@ -591,7 +591,7 @@ export function ProtocolModal({
                         onChange={(e) =>
                           updateRow(row.student_id, 'progress', parseInt(e.target.value))
                         }
-                        className="w-full lg:w-auto px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer shadow-sm"
+                        className="w-full lg:w-auto px-3 py-2 text-sm border border-slate-200 rounded-xl bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer shadow-sm"
                       >
                         <option value={5}>Sehr gut</option>
                         <option value={4}>Gut</option>
@@ -603,7 +603,7 @@ export function ProtocolModal({
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
                     <div className="relative group/input">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within/input:text-primary-500 transition-colors">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-primary-500 transition-colors">
                         <MessageSquare size={14} />
                       </div>
                       <input
@@ -611,11 +611,11 @@ export function ProtocolModal({
                         value={row.notes || ''}
                         onChange={(e) => updateRow(row.student_id, 'notes', e.target.value)}
                         placeholder="Kommentar..."
-                        className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-primary-200 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder-gray-400 hover:bg-white hover:border-gray-200"
+                        className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:border-primary-200 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder-slate-400 hover:bg-white hover:border-slate-200"
                       />
                     </div>
                     <div className="relative group/input">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within/input:text-primary-500 transition-colors">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-primary-500 transition-colors">
                         <BookOpen size={14} />
                       </div>
                       <input
@@ -623,7 +623,7 @@ export function ProtocolModal({
                         value={row.homework || ''}
                         onChange={(e) => updateRow(row.student_id, 'homework', e.target.value)}
                         placeholder="Hausübung..."
-                        className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-primary-200 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder-gray-400 hover:bg-white hover:border-gray-200"
+                        className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 border border-transparent rounded-xl focus:bg-white focus:border-primary-200 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder-slate-400 hover:bg-white hover:border-slate-200"
                       />
                     </div>
                   </div>
@@ -645,7 +645,7 @@ export function ProtocolModal({
                     </div>
 
                     {assessmentsFor(row.student_id).length === 0 ? (
-                      <div className="text-xs text-gray-400 italic bg-gray-50/60 border border-dashed border-gray-200 rounded-xl px-3 py-2">
+                      <div className="text-xs text-slate-400 italic bg-slate-50/60 border border-dashed border-slate-200 rounded-xl px-3 py-2">
                         Noch keine Schularbeit, kein Test und keine Prüfung erfasst.
                       </div>
                     ) : (
@@ -654,7 +654,7 @@ export function ProtocolModal({
                           a.editable ? (
                             <div
                               key={a.key}
-                              className="grid grid-cols-2 lg:grid-cols-[1.2fr_1fr_1.4fr_1.2fr_auto] gap-2 items-center bg-white border border-gray-200 rounded-xl p-2 shadow-sm"
+                              className="grid grid-cols-2 lg:grid-cols-[1.2fr_1fr_1.4fr_1.2fr_auto] gap-2 items-center bg-white border border-slate-200 rounded-xl p-2 shadow-sm"
                             >
                               <select
                                 value={a.exam_type}
@@ -663,7 +663,7 @@ export function ProtocolModal({
                                     exam_type: e.target.value as ExamType,
                                   })
                                 }
-                                className="px-2 py-1.5 text-xs font-medium border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                                className="px-2 py-1.5 text-xs font-medium border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
                               >
                                 {EXAM_TYPES.map((t) => (
                                   <option key={t} value={t}>
@@ -678,7 +678,7 @@ export function ProtocolModal({
                                 onChange={(e) =>
                                   updateAssessment(a.key, { exam_date: e.target.value })
                                 }
-                                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500"
+                                className="px-2 py-1.5 text-xs border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500"
                               />
 
                               <select
@@ -688,7 +688,7 @@ export function ProtocolModal({
                                     grade_number: e.target.value ? Number(e.target.value) : null,
                                   })
                                 }
-                                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                                className="px-2 py-1.5 text-xs border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
                               >
                                 <option value="">Keine Note</option>
                                 {SCHOOL_GRADES.map((g) => (
@@ -707,7 +707,7 @@ export function ProtocolModal({
                                       : null,
                                   })
                                 }
-                                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                                className="px-2 py-1.5 text-xs border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
                               >
                                 <option value="">Kein Symbol</option>
                                 {GRADE_SYMBOLS.map((s) => (
@@ -720,7 +720,7 @@ export function ProtocolModal({
                               <button
                                 type="button"
                                 onClick={() => removeAssessment(a.key)}
-                                className="justify-self-end text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-all"
+                                className="justify-self-end text-slate-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-all"
                                 title="Eintrag entfernen"
                               >
                                 <X size={14} />
@@ -757,14 +757,14 @@ export function ProtocolModal({
           {/* Fach & Thema */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">
                 Fach
               </label>
               <select
                 required
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none bg-white shadow-sm transition-shadow"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none bg-white shadow-sm transition-shadow"
               >
                 <option value="">Bitte wählen...</option>
                 {SUBJECTS.map((s) => (
@@ -775,7 +775,7 @@ export function ProtocolModal({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">
                 Thema
               </label>
               <input
@@ -783,39 +783,39 @@ export function ProtocolModal({
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none shadow-sm transition-shadow"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none shadow-sm transition-shadow"
                 placeholder="Was wurde gemacht?"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">
               Verlauf &amp; Notizen (Gruppe)
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none resize-none shadow-sm transition-shadow"
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none resize-none shadow-sm transition-shadow"
               placeholder="Details zur Einheit..."
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-2 ml-1">
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">
               Hausaufgaben (Gruppe)
             </label>
             <textarea
               value={homework}
               onChange={(e) => setHomework(e.target.value)}
               rows={2}
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none resize-none shadow-sm transition-shadow"
+              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none resize-none shadow-sm transition-shadow"
               placeholder="Aufgaben bis zum nächsten Mal..."
             />
           </div>
 
-          <div className="flex justify-between pt-6 border-t border-gray-100 items-center">
+          <div className="flex justify-between pt-6 border-t border-slate-100 items-center">
             {canDelete && protocolId ? (
               <button
                 type="button"
@@ -833,7 +833,7 @@ export function ProtocolModal({
                 type="button"
                 onClick={onClose}
                 disabled={saving}
-                className="px-6 py-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors font-medium disabled:opacity-50"
+                className="px-6 py-3 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium disabled:opacity-50"
               >
                 Abbrechen
               </button>

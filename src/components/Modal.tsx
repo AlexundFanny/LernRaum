@@ -18,11 +18,11 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-2xl'
       <div
         className={`bg-white rounded-xl shadow-2xl w-full ${maxWidth} max-h-[90vh] flex flex-col overflow-hidden`}
       >
-        <div className="flex justify-between items-center p-6 border-b border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800">{title}</h3>
+        <div className="flex justify-between items-center p-6 border-b border-slate-100">
+          <h3 className="text-xl font-bold text-slate-800">{title}</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-slate-400 hover:text-slate-600 transition-colors"
             aria-label="Schließen"
           >
             <X size={24} />

@@ -69,6 +69,29 @@ src/
       StudentFormModal.tsx     Schüler anlegen/bearbeiten
 ```
 
+## Farben
+
+Es gibt fünf Rampen, mehr nicht. `tailwind.config.js` definiert `primary`
+und `navy`, der Rest kommt aus Tailwind.
+
+| Rampe | Bedeutung |
+| --- | --- |
+| `primary` | Aktionen, aktive Zustände, Akzente. Nie für Inhalte — sonst sieht Inhalt nach Bedienelement aus. |
+| `slate` | Alle neutralen Flächen, Texte und Rahmen. |
+| `emerald` | Positiv, erledigt, anwesend. |
+| `amber` | Braucht Aufmerksamkeit, offen, verspätet. |
+| `red` | Negativ, Fehler, Löschen. |
+| `navy` | Nur die Sidebar. |
+
+Badges sind durchgehend `bg-<rampe>-50`, `border-<rampe>-200`,
+`text-<rampe>-700` (siehe `src/components/Badges.tsx`).
+
+Die beiden Bewertungen greifen auf **eine** gemeinsame fünfstufige Skala
+zu (`RATING_SCALE`), nur in umgekehrter Richtung — die laufende Bewertung
+läuft 5 = sehr gut, die Schulnote 1 = Sehr gut. Eine gute Leistung sieht
+damit überall gleich aus. Die Mitte der Skala ist neutral statt blau, weil
+blau den Bedienelementen gehört.
+
 ## Datenbank-Sicherheit
 
 Das Verzeichnis `db/` enthält die SQL-Skripte, die im Supabase SQL Editor

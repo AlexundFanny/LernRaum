@@ -72,10 +72,10 @@ export function Messages({ profile }: MessagesProps) {
     <div className="animate-fade-in max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
             <Mail size={24} className="text-primary-600" /> Mitteilungen
           </h2>
-          <p className="text-gray-500">Neuigkeiten und Informationen für das Team</p>
+          <p className="text-slate-500">Neuigkeiten und Informationen für das Team</p>
         </div>
         {profile.is_admin && (
           <button
@@ -89,8 +89,8 @@ export function Messages({ profile }: MessagesProps) {
 
       <div className="space-y-6">
         {messages.length === 0 && (
-          <div className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-12 text-center">
-            <div className="text-gray-400 mb-2">Keine Mitteilungen vorhanden.</div>
+          <div className="bg-white rounded-xl border-2 border-dashed border-slate-200 p-12 text-center">
+            <div className="text-slate-400 mb-2">Keine Mitteilungen vorhanden.</div>
             {profile.is_admin && (
               <div className="text-sm text-primary-600">
                 Erstellen Sie die erste Nachricht für Ihr Team.
@@ -101,22 +101,22 @@ export function Messages({ profile }: MessagesProps) {
         {messages.map((m) => (
           <div
             key={m.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+            className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
           >
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-bold text-gray-900">{m.title}</h3>
+                <h3 className="text-lg font-bold text-slate-900">{m.title}</h3>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                  <span className="text-xs text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded border border-slate-100">
                     <Users size={12} /> {m.created_by ? authors[m.created_by] || 'Unbekannt' : 'Unbekannt'}
                   </span>
-                  <span className="text-xs text-gray-500 flex items-center gap-1 bg-gray-50 px-2 py-1 rounded">
+                  <span className="text-xs text-slate-500 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded">
                     <Clock size={12} /> {formatDate(m.created_at)}
                   </span>
                   {profile.is_admin && (
                     <button
                       onClick={() => handleDelete(m.id)}
-                      className="text-gray-300 hover:text-red-500 transition-colors ml-1"
+                      className="text-slate-300 hover:text-red-500 transition-colors ml-1"
                       title="Löschen"
                     >
                       <Trash2 size={16} />
@@ -124,7 +124,7 @@ export function Messages({ profile }: MessagesProps) {
                   )}
                 </div>
               </div>
-              <div className="prose prose-sm max-w-none text-gray-600 whitespace-pre-wrap">
+              <div className="prose prose-sm max-w-none text-slate-600 whitespace-pre-wrap">
                 {m.content}
               </div>
             </div>
@@ -135,7 +135,7 @@ export function Messages({ profile }: MessagesProps) {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Neue Mitteilung">
         <form onSubmit={handleCreate} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">Betreff</label>
+            <label className="block text-sm font-medium mb-1 text-slate-700">Betreff</label>
             <input
               required
               className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
@@ -145,7 +145,7 @@ export function Messages({ profile }: MessagesProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1 text-gray-700">Nachricht</label>
+            <label className="block text-sm font-medium mb-1 text-slate-700">Nachricht</label>
             <textarea
               required
               rows={6}
@@ -155,11 +155,11 @@ export function Messages({ profile }: MessagesProps) {
               placeholder="Text hier eingeben..."
             />
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+              className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg"
             >
               Abbrechen
             </button>

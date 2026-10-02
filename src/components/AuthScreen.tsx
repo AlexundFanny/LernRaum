@@ -105,7 +105,7 @@ export function AuthScreen() {
       {/* Hintergrund-Leuchten */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary-900/20 blur-[100px]" />
-        <div className="absolute top-[60%] -left-[10%] w-[40%] h-[40%] rounded-full bg-blue-900/10 blur-[100px]" />
+        <div className="absolute top-[60%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary-900/10 blur-[100px]" />
       </div>
 
       <div className="w-full max-w-md z-10 p-4">
@@ -127,7 +127,7 @@ export function AuthScreen() {
               className={`p-4 rounded-xl mb-6 text-sm flex items-center gap-2 ${
                 message.type === 'error'
                   ? 'bg-red-500/10 text-red-200 border border-red-500/20'
-                  : 'bg-green-500/10 text-green-200 border border-green-500/20'
+                  : 'bg-emerald-500/10 text-emerald-200 border border-emerald-500/20'
               }`}
             >
               {message.text}

@@ -333,7 +333,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
   );
 
   const StatCard = ({ label, value }: { label: string; value: number | string }) => (
-    <div className="bg-white p-5 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex flex-col justify-center gap-1 h-full">
+    <div className="bg-white p-5 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col justify-center gap-1 h-full">
       <div className="text-slate-400 text-xs font-bold uppercase tracking-wider">{label}</div>
       <div className="text-3xl font-bold text-slate-700">{value}</div>
     </div>
@@ -342,13 +342,13 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
   return (
     <div className="space-y-6 animate-fade-in max-w-7xl mx-auto">
       {/* Reiter */}
-      <div className="bg-white p-1.5 rounded-xl border border-gray-200 inline-flex shadow-sm">
+      <div className="bg-white p-1.5 rounded-xl border border-slate-200 inline-flex shadow-sm">
         <button
           onClick={() => setTab('calendar')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             tab === 'calendar'
               ? 'bg-primary-50 text-primary-700 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+              : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <Calendar size={16} /> Mein Stundenplan
@@ -357,8 +357,8 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
           onClick={() => setTab('shared')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             tab === 'shared'
-              ? 'bg-violet-50 text-violet-700 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+              ? 'bg-primary-50 text-primary-700 shadow-sm'
+              : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <Users size={16} /> Gemeinsamer Kalender
@@ -367,8 +367,8 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
           onClick={() => setTab('substitutions')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             tab === 'substitutions'
-              ? 'bg-blue-50 text-blue-700 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+              ? 'bg-primary-50 text-primary-700 shadow-sm'
+              : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           <ArrowRightLeft size={16} /> Vertretungsbörse
@@ -384,7 +384,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
               <StatCard label="Protokolle" value={filteredProtocols.length} />
               <StatCard label="Offen" value={openCount} />
             </div>
-            <div className="bg-white p-5 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex items-center gap-3 xl:w-80">
+            <div className="bg-white p-5 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center gap-3 xl:w-80">
               <div className="h-10 w-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
                 <Funnel size={20} />
               </div>
@@ -421,8 +421,8 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
           </div>
 
           {/* Stundenplan */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <Calendar size={20} className="text-primary-600" />
                 Stundenplan
@@ -446,7 +446,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-gray-100 bg-slate-50/50">
+            <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-slate-100 bg-slate-50/50">
               {weekDays.map((day, idx) => {
                 const daySessions = sessionsForDay(day);
                 const now = new Date();
@@ -459,11 +459,11 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                   <div
                     key={idx}
                     className={`min-h-[180px] group transition-colors ${
-                      isToday ? 'bg-blue-50/30' : 'bg-white hover:bg-slate-50/50'
+                      isToday ? 'bg-primary-50/30' : 'bg-white hover:bg-slate-50/50'
                     }`}
                   >
                     <div
-                      className={`p-3 text-center border-b border-gray-100/50 ${
+                      className={`p-3 text-center border-b border-slate-100/50 ${
                         isToday ? 'text-primary-600' : 'text-slate-500'
                       }`}
                     >
@@ -493,7 +493,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                             className={`relative p-3 rounded-xl border transition-all cursor-pointer shadow-sm hover:shadow-md hover:-translate-y-0.5 ${
                               done
                                 ? 'bg-white border-emerald-200 shadow-emerald-100'
-                                : 'bg-white border-gray-200 border-l-4 border-l-amber-400'
+                                : 'bg-white border-slate-200 border-l-4 border-l-amber-400'
                             }`}
                           >
                             <div className="flex justify-between items-start mb-1">
@@ -527,7 +527,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                                 <div className="text-[10px] text-slate-400">+{count - 3} weitere</div>
                               )}
                             </div>
-                            <div className="pt-2 border-t border-gray-50 flex items-center justify-end">
+                            <div className="pt-2 border-t border-slate-50 flex items-center justify-end">
                               {subject && (
                                 <span className="text-[9px] font-bold text-primary-600 uppercase tracking-wide bg-primary-50 px-1.5 py-0.5 rounded-full">
                                   {subject.slice(0, 3)}
@@ -545,8 +545,8 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
           </div>
 
           {/* Letzte Protokolle */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
                 <FileText size={20} className="text-primary-600" />
                 Letzte Protokolle
@@ -554,7 +554,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
               <div className="flex items-center gap-2">
                 <button
                   onClick={exportAssessments}
-                  className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-600 border border-slate-200 hover:border-violet-600 px-3 py-1.5 rounded-lg transition-all uppercase tracking-wide"
+                  className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-primary-600 border border-slate-200 hover:border-primary-600 px-3 py-1.5 rounded-lg transition-all uppercase tracking-wide"
                   title="Alle Schularbeiten, Tests und Prüfungen als CSV"
                 >
                   <Download size={14} /> Leistungen
@@ -567,9 +567,9 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                 </button>
               </div>
             </div>
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y divide-slate-50">
               {filteredProtocols.length === 0 && (
-                <p className="text-gray-400 text-center py-12 italic">Keine Protokolle gefunden.</p>
+                <p className="text-slate-400 text-center py-12 italic">Keine Protokolle gefunden.</p>
               )}
               {filteredProtocols.map((p) => {
                 const presentCount =
@@ -643,11 +643,11 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
       {tab === 'shared' && (
         <div className="space-y-6">
           {/* Hinweis: reine Anzeige. Einteilen und Verschieben macht der Admin. */}
-          <div className="bg-violet-50/60 border border-violet-100 rounded-2xl px-5 py-4 flex items-start gap-3">
-            <Users size={18} className="text-violet-500 mt-0.5 shrink-0" />
-            <div className="text-sm text-violet-900">
+          <div className="bg-primary-50/60 border border-primary-100 rounded-2xl px-5 py-4 flex items-start gap-3">
+            <Users size={18} className="text-primary-500 mt-0.5 shrink-0" />
+            <div className="text-sm text-primary-900">
               <div className="font-bold">Wochenübersicht über alle Lehrer</div>
-              <div className="text-violet-700/80 text-xs mt-0.5">
+              <div className="text-primary-700/80 text-xs mt-0.5">
                 Zum Schauen gedacht: wer ist wann wo eingeteilt. Die Standorte werden getrennt
                 geführt und blockieren sich nicht. Eingeteilt und verschoben wird weiterhin nur
                 von der Verwaltung.
@@ -655,17 +655,17 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-                <Calendar size={20} className="text-violet-600" />
+                <Calendar size={20} className="text-primary-600" />
                 Alle Einheiten
               </h2>
               <div className="flex items-center gap-3">
                 <select
                   value={sharedLocation}
                   onChange={(e) => setSharedLocation(e.target.value)}
-                  className="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer"
+                  className="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
                 >
                   <option value="all">Alle Standorte</option>
                   {LOCATIONS.map((l) => (
@@ -700,7 +700,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
               <table className="w-full min-w-[900px] border-collapse">
                 <thead>
                   <tr className="bg-slate-50/80">
-                    <th className="w-28 px-3 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-r border-gray-100">
+                    <th className="w-28 px-3 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-r border-slate-100">
                       Block
                     </th>
                     {weekDays.map((day, idx) => {
@@ -708,20 +708,20 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                       return (
                         <th
                           key={idx}
-                          className={`px-2 py-3 border-b border-r border-gray-100 last:border-r-0 ${
-                            isToday ? 'bg-violet-50/60' : ''
+                          className={`px-2 py-3 border-b border-r border-slate-100 last:border-r-0 ${
+                            isToday ? 'bg-primary-50/60' : ''
                           }`}
                         >
                           <div
                             className={`text-[10px] font-bold uppercase tracking-wide ${
-                              isToday ? 'text-violet-600' : 'text-slate-400'
+                              isToday ? 'text-primary-600' : 'text-slate-400'
                             }`}
                           >
                             {day.toLocaleDateString('de-DE', { weekday: 'short' })}
                           </div>
                           <div
                             className={`text-base font-bold ${
-                              isToday ? 'text-violet-700' : 'text-slate-600'
+                              isToday ? 'text-primary-700' : 'text-slate-600'
                             }`}
                           >
                             {day.getDate()}
@@ -739,7 +739,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                       <tr>
                         <th
                           colSpan={8}
-                          className="px-3 py-2 text-left bg-slate-100/80 border-b border-gray-200"
+                          className="px-3 py-2 text-left bg-slate-100/80 border-b border-slate-200"
                         >
                           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 uppercase tracking-wide">
                             <MapPin size={12} className="text-slate-400" /> {location}
@@ -748,7 +748,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                       </tr>
                       {sharedRowsFor(location).map((blockRow) => (
                         <tr key={`${location}-${blockRow.label}`} className="align-top">
-                          <td className="px-3 py-3 border-b border-r border-gray-100 bg-slate-50/50">
+                          <td className="px-3 py-3 border-b border-r border-slate-100 bg-slate-50/50">
                             <div className="text-xs font-bold text-slate-600">
                               {blockRow.label}
                             </div>
@@ -764,8 +764,8 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                             return (
                               <td
                                 key={idx}
-                                className={`px-2 py-2 border-b border-r border-gray-100 last:border-r-0 ${
-                                  isToday ? 'bg-violet-50/20' : ''
+                                className={`px-2 py-2 border-b border-r border-slate-100 last:border-r-0 ${
+                                  isToday ? 'bg-primary-50/20' : ''
                                 }`}
                               >
                                 {/* Freie Blöcke bleiben einfach leer. */}
@@ -778,7 +778,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                                         className={`p-2 rounded-lg border text-xs ${
                                           mine
                                             ? 'bg-primary-50 border-primary-200'
-                                            : 'bg-white border-gray-200'
+                                            : 'bg-white border-slate-200'
                                         }`}
                                       >
                                         <div
@@ -811,13 +811,13 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
               </table>
             </div>
 
-            <div className="px-6 py-3 border-t border-gray-100 bg-slate-50/50 flex flex-wrap items-center gap-4 text-[10px] text-slate-500">
+            <div className="px-6 py-3 border-t border-slate-100 bg-slate-50/50 flex flex-wrap items-center gap-4 text-[10px] text-slate-500">
               <span className="flex items-center gap-1.5">
                 <span className="h-3 w-3 rounded bg-primary-50 border border-primary-200" />
                 Eigene Einheit
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded bg-white border border-gray-200" />
+                <span className="h-3 w-3 rounded bg-white border border-slate-200" />
                 Kollege
               </span>
               <span>Leere Zelle = Block an diesem Standort noch frei</span>
@@ -830,11 +830,11 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
         <div className="space-y-8">
           <div className="space-y-4">
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <ArrowRightLeft size={20} className="text-blue-500" /> Verfügbare Vertretungen
+              <ArrowRightLeft size={20} className="text-primary-500" /> Verfügbare Vertretungen
             </h3>
             <div className="space-y-3">
               {openSubs.length === 0 && (
-                <div className="p-8 bg-white border border-dashed border-gray-200 rounded-xl text-center text-gray-400 text-sm">
+                <div className="p-8 bg-white border border-dashed border-slate-200 rounded-xl text-center text-slate-400 text-sm">
                   Keine offenen Vertretungsanfragen.
                 </div>
               )}
@@ -842,20 +842,20 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                 req.sessions ? (
                   <div
                     key={req.id}
-                    className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                    className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <div className="font-bold text-gray-800 flex items-center gap-2">
+                        <div className="font-bold text-slate-800 flex items-center gap-2">
                           {new Date(req.sessions.date).toLocaleDateString()}
-                          <span className="font-normal text-gray-400">|</span>
+                          <span className="font-normal text-slate-400">|</span>
                           {shortTime(req.sessions.start_time)} - {shortTime(req.sessions.end_time)}
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">
+                        <div className="text-sm text-slate-500 mt-1">
                           {req.sessions.location} | {req.sessions.teacher_name}
                         </div>
                       </div>
-                      <div className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-1 rounded">
+                      <div className="bg-primary-50 text-primary-700 text-xs font-bold px-2 py-1 rounded">
                         Offen
                       </div>
                     </div>
@@ -863,7 +863,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                       {req.sessions.session_students?.map((ss, i) => (
                         <span
                           key={i}
-                          className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                          className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded"
                         >
                           {ss.student_name}
                         </span>
@@ -871,7 +871,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                     </div>
                     <button
                       onClick={() => acceptSubstitution(req)}
-                      className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-sm shadow-sm transition-colors"
+                      className="w-full py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-bold text-sm shadow-sm transition-colors"
                     >
                       Übernehmen
                     </button>
@@ -887,7 +887,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
             </h3>
             <div className="space-y-3">
               {mySubs.length === 0 && (
-                <div className="p-8 bg-gray-50 border border-transparent rounded-xl text-center text-gray-400 text-sm">
+                <div className="p-8 bg-slate-50 border border-transparent rounded-xl text-center text-slate-400 text-sm">
                   Sie haben keine offenen Anfragen.
                 </div>
               )}
@@ -895,20 +895,20 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                 req.sessions ? (
                   <div
                     key={req.id}
-                    className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm opacity-90"
+                    className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm opacity-90"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <div className="font-bold text-gray-800 flex items-center gap-2">
+                        <div className="font-bold text-slate-800 flex items-center gap-2">
                           {new Date(req.sessions.date).toLocaleDateString()}
-                          <span className="font-normal text-gray-400">|</span>
+                          <span className="font-normal text-slate-400">|</span>
                           {shortTime(req.sessions.start_time)}
                         </div>
-                        <div className="text-sm text-gray-500 mt-1">{req.sessions.location}</div>
+                        <div className="text-sm text-slate-500 mt-1">{req.sessions.location}</div>
                       </div>
                       <button
                         onClick={() => withdrawSubstitution(req.id)}
-                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                        className="text-slate-400 hover:text-red-500 transition-colors p-1"
                         title="Zurückziehen"
                       >
                         <CircleX size={18} />

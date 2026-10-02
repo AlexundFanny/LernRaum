@@ -52,52 +52,52 @@ export function StudentFormModal({ isOpen, onClose, onSaved, student }: StudentF
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
             <input
               required
               type="text"
               value={form.name || ''}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Klasse / Schulstufe</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Klasse / Schulstufe</label>
             <input
               type="text"
               value={form.grade || ''}
               onChange={(e) => setForm({ ...form, grade: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Geburtsdatum</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Geburtsdatum</label>
             <input
               type="date"
               value={form.birth_date || ''}
               onChange={(e) => setForm({ ...form, birth_date: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Eltern / Kontakt</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Eltern / Kontakt</label>
             <input
               type="text"
               value={form.parents || ''}
               onChange={(e) => setForm({ ...form, parents: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Adresse</label>
           <input
             type="text"
             value={form.address || ''}
             onChange={(e) => setForm({ ...form, address: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full p-2 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
         <button
