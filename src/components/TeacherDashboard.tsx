@@ -32,6 +32,7 @@ import type {
 } from '../types';
 import { LOCATIONS, TIME_BLOCKS } from '../constants';
 import { ProtocolModal } from './ProtocolModal';
+import { AttendanceBadge } from './Badges';
 
 interface TeacherDashboardProps {
   profile: Profile;
@@ -529,7 +530,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                             </div>
                             <div className="pt-2 border-t border-slate-50 flex items-center justify-end">
                               {subject && (
-                                <span className="text-[9px] font-bold text-primary-600 uppercase tracking-wide bg-primary-50 px-1.5 py-0.5 rounded-full">
+                                <span className="text-[9px] font-bold text-primary-600 uppercase tracking-wide bg-primary-50 px-1.5 py-0.5 rounded">
                                   {subject.slice(0, 3)}
                                 </span>
                               )}
@@ -588,7 +589,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                           <h3 className="font-bold text-slate-800 text-sm group-hover:text-primary-700 transition-colors">
                             {p.subject}
                           </h3>
-                          <span className="text-xs text-slate-400 font-medium px-2 py-0.5 bg-slate-100 rounded-full">
+                          <span className="text-xs text-slate-400 font-medium px-2 py-0.5 bg-slate-100 rounded">
                             {p.duration} Min
                           </span>
                         </div>
@@ -609,28 +610,19 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                         </div>
                       </div>
                     </div>
-                    {/* Anwesenheits-Punkte je Schüler — korrekt je Status eingefärbt */}
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {p.protocol_attendance?.map((a) => {
-                        const present = a.attendance === 'present' || a.attendance === 'late';
-                        return (
-                          <div
-                            key={a.student_id}
-                            className={`pl-1 pr-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 ${
-                              present
-                                ? 'bg-white border-emerald-100 text-emerald-700 shadow-sm'
-                                : 'bg-red-50 border-red-100 text-red-700'
-                            }`}
-                          >
-                            <div
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                present ? 'bg-emerald-500' : 'bg-red-500'
-                              }`}
-                            />
+                    {/* Anwesenheit je Schüler über das gemeinsame Badge, damit
+                        alle vier Zustände unterschieden werden — die frühere
+                        eigene Darstellung warf Verspätet mit Anwesend und
+                        Entschuldigt mit Fehlt zusammen. */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
+                      {p.protocol_attendance?.map((a) => (
+                        <div key={a.student_id} className="flex items-center gap-2">
+                          <span className="text-xs font-medium text-slate-600">
                             {a.student_name}
-                          </div>
-                        );
-                      })}
+                          </span>
+                          <AttendanceBadge status={a.attendance} />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 );

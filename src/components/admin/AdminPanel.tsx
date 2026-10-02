@@ -883,11 +883,11 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                   </div>
                   <div className="flex items-center gap-4">
                     {t.is_admin ? (
-                      <span className="text-xs bg-primary-50 text-primary-700 px-3 py-1 rounded-full font-semibold border border-primary-100">
+                      <span className="text-xs bg-primary-50 text-primary-700 px-3 py-1 rounded font-semibold border border-primary-100">
                         {t.is_super_admin ? 'Super-Admin' : 'Admin'}
                       </span>
                     ) : (
-                      <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-semibold">
+                      <span className="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded font-semibold">
                         Lehrer
                       </span>
                     )}

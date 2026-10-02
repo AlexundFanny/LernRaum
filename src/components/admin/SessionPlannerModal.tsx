@@ -348,7 +348,7 @@ export function SessionPlannerModal({
               <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
                 Schüler auswählen
               </label>
-              <span className="text-[10px] bg-primary-50 text-primary-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wide border border-primary-100">
+              <span className="text-[10px] bg-primary-50 text-primary-700 px-2 py-0.5 rounded font-bold uppercase tracking-wide border border-primary-100">
                 {picked.length} Gewählt
               </span>
             </div>

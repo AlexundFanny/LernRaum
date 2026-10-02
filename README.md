@@ -86,6 +86,11 @@ und `navy`, der Rest kommt aus Tailwind.
 Badges sind durchgehend `bg-<rampe>-50`, `border-<rampe>-200`,
 `text-<rampe>-700` (siehe `src/components/Badges.tsx`).
 
+Statusangaben laufen ausschließlich über die Badges in `Badges.tsx`. Keine
+Pill-/Chip-Formen (`rounded-full`) für Text, keine farbigen Status-Punkte
+als Indikator — `rounded-full` bleibt den Dingen vorbehalten, die wirklich
+kreisförmig sind: Avatare, Icon-Buttons, Timeline-Punkte, Deko-Flächen.
+
 Die beiden Bewertungen greifen auf **eine** gemeinsame fünfstufige Skala
 zu (`RATING_SCALE`), nur in umgekehrter Richtung — die laufende Bewertung
 läuft 5 = sehr gut, die Schulnote 1 = Sehr gut. Eine gute Leistung sieht
