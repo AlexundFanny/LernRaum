@@ -117,9 +117,12 @@ Neu:
   Im CSV-Export als Spalte `Leistungen` sowie als eigener Export.
 - **Gemeinsamer Kalender.** Dritter Reiter neben "Mein Stundenplan" und
   "Vertretungsbörse", auch für Lehrer. Wochenraster über alle Lehrer:
-  Zeitblöcke als Zeilen, Wochentage als Spalten, freie Blöcke sind als
-  "frei" markiert, die eigenen Einheiten sind hervorgehoben. Filter nach
-  Standort. Reine Anzeige — eingeteilt und verschoben wird nur vom Admin.
+  Wochentage als Spalten, Zeilen je Standort und Zeitblock. Die Standorte
+  sind eigene Zeilengruppen und blockieren sich nicht gegenseitig — eine
+  Einheit in Floridsdorf belegt den Block in Wien Mitte nicht. Freie Blöcke
+  bleiben einfach leer, die eigenen Einheiten sind hervorgehoben, Filter
+  nach Standort. Reine Anzeige — eingeteilt und verschoben wird nur vom
+  Admin.
 
 Hinweis zu den zwei Bewertungsskalen:
 - laufende Bewertung pro Einheit (`protocol_attendance.progress`):

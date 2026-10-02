@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import {
   ArrowRightLeft,
   Calendar,
@@ -256,9 +256,9 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
   }
 
   /**
-   * Zeilen des gemeinsamen Kalenders: die drei Standardblöcke plus eine
-   * Sammelzeile für Einheiten mit abweichender Startzeit, damit nichts
-   * unsichtbar wird.
+   * Eine Zeile des gemeinsamen Kalenders: ein Zeitblock an einem Standort.
+   * `start = null` ist die Sammelzeile für Einheiten mit abweichender
+   * Startzeit, damit nichts unsichtbar wird.
    */
   interface SharedRow {
     label: string;
@@ -268,30 +268,53 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
 
   const blockStarts = useMemo(() => TIME_BLOCKS.map((b) => b.start), []);
 
-  const sharedRows: SharedRow[] = useMemo(() => {
+  const weekDates = useMemo(
+    () => new Set(weekDays.map((d) => toLocalDateString(d))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [weekOffset],
+  );
+
+  /**
+   * Die Standorte sind voneinander unabhängig — eine Einheit in Floridsdorf
+   * belegt keinen Block in Wien Mitte. Darum ist der Standort eine eigene
+   * Dimension des Rasters und keine Angabe innerhalb einer Zelle.
+   *
+   * Standorte aus den Daten, die nicht in LOCATIONS stehen, werden ergänzt,
+   * damit keine Einheit aus der Ansicht fällt.
+   */
+  const sharedLocationGroups = useMemo(() => {
+    const known: string[] = [...LOCATIONS];
+    allSessions.forEach((s) => {
+      if (weekDates.has(s.date) && s.location && !known.includes(s.location)) {
+        known.push(s.location);
+      }
+    });
+    return sharedLocation === 'all' ? known : known.filter((l) => l === sharedLocation);
+  }, [allSessions, weekDates, sharedLocation]);
+
+  /** Zeitblöcke eines Standorts, plus Sammelzeile nur wenn dort nötig. */
+  function sharedRowsFor(location: string): SharedRow[] {
     const rows: SharedRow[] = TIME_BLOCKS.map((b) => ({
       label: b.label,
       time: `${b.start}–${b.end}`,
       start: b.start,
     }));
 
-    // Die Sammelzeile nur zeigen, wenn diese Woche wirklich eine Einheit
-    // außerhalb der Standardblöcke liegt — sonst wäre sie nur leeres Raster.
-    const weekDates = new Set(weekDays.map((d) => toLocalDateString(d)));
     const hasOffBlock = allSessions.some(
-      (s) => weekDates.has(s.date) && !blockStarts.includes((s.start_time || '').slice(0, 5)),
+      (s) =>
+        s.location === location &&
+        weekDates.has(s.date) &&
+        !blockStarts.includes((s.start_time || '').slice(0, 5)),
     );
     if (hasOffBlock) rows.push({ label: 'Andere Zeit', time: null, start: null });
 
     return rows;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allSessions, weekOffset, blockStarts]);
+  }
 
-  function sharedSessionsFor(day: Date, row: SharedRow): Session[] {
+  function sharedSessionsFor(day: Date, row: SharedRow, location: string): Session[] {
     const dateStr = toLocalDateString(day);
     return allSessions
-      .filter((s) => s.date === dateStr)
-      .filter((s) => sharedLocation === 'all' || s.location === sharedLocation)
+      .filter((s) => s.date === dateStr && s.location === location)
       .filter((s) => {
         const start = (s.start_time || '').slice(0, 5);
         return row.start ? start === row.start : !blockStarts.includes(start);
@@ -625,8 +648,9 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
             <div className="text-sm text-violet-900">
               <div className="font-bold">Wochenübersicht über alle Lehrer</div>
               <div className="text-violet-700/80 text-xs mt-0.5">
-                Zum Schauen gedacht: wer ist wann wo eingeteilt, und welche Blöcke sind noch
-                frei. Eingeteilt und verschoben wird weiterhin nur von der Verwaltung.
+                Zum Schauen gedacht: wer ist wann wo eingeteilt. Die Standorte werden getrennt
+                geführt und blockieren sich nicht. Eingeteilt und verschoben wird weiterhin nur
+                von der Verwaltung.
               </div>
             </div>
           </div>
@@ -708,71 +732,80 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {sharedRows.map((blockRow) => (
-                    <tr key={blockRow.label} className="align-top">
-                      <td className="px-3 py-3 border-b border-r border-gray-100 bg-slate-50/50">
-                        <div className="text-xs font-bold text-slate-600">{blockRow.label}</div>
-                        {blockRow.time && (
-                          <div className="text-[10px] text-slate-400 font-mono">
-                            {blockRow.time}
-                          </div>
-                        )}
-                      </td>
-                      {weekDays.map((day, idx) => {
-                        const cell = sharedSessionsFor(day, blockRow);
-                        const isToday = toLocalDateString(day) === todayStr;
-                        return (
-                          <td
-                            key={idx}
-                            className={`px-2 py-2 border-b border-r border-gray-100 last:border-r-0 ${
-                              isToday ? 'bg-violet-50/20' : ''
-                            }`}
-                          >
-                            {cell.length === 0 ? (
-                              <div className="text-[10px] text-emerald-600/70 font-bold uppercase tracking-wide text-center py-3 bg-emerald-50/40 rounded-lg border border-dashed border-emerald-100">
-                                frei
-                              </div>
-                            ) : (
-                              <div className="space-y-1.5">
-                                {cell.map((s) => {
-                                  const mine = s.teacher_id === profile.id;
-                                  return (
-                                    <div
-                                      key={s.id}
-                                      className={`p-2 rounded-lg border text-xs ${
-                                        mine
-                                          ? 'bg-primary-50 border-primary-200'
-                                          : 'bg-white border-gray-200'
-                                      }`}
-                                    >
-                                      <div
-                                        className={`font-bold truncate ${
-                                          mine ? 'text-primary-800' : 'text-slate-700'
-                                        }`}
-                                      >
-                                        {s.teacher_name || 'Nicht zugeteilt'}
-                                      </div>
-                                      <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5">
-                                        <MapPin size={9} className="shrink-0" />
-                                        <span className="truncate">{s.location}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400 font-mono">
-                                        <span>
-                                          {shortTime(s.start_time)}–{shortTime(s.end_time)}
-                                        </span>
-                                        <span className="font-sans font-bold">
-                                          {s.session_students?.length || 0} Schüler
-                                        </span>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                  {sharedLocationGroups.map((location) => (
+                    <Fragment key={location}>
+                      {/* Standort-Kopfzeile. Jeder Standort hat eigene Blöcke —
+                          Floridsdorf und Wien Mitte blockieren sich nicht. */}
+                      <tr>
+                        <th
+                          colSpan={8}
+                          className="px-3 py-2 text-left bg-slate-100/80 border-b border-gray-200"
+                        >
+                          <span className="flex items-center gap-1.5 text-xs font-bold text-slate-600 uppercase tracking-wide">
+                            <MapPin size={12} className="text-slate-400" /> {location}
+                          </span>
+                        </th>
+                      </tr>
+                      {sharedRowsFor(location).map((blockRow) => (
+                        <tr key={`${location}-${blockRow.label}`} className="align-top">
+                          <td className="px-3 py-3 border-b border-r border-gray-100 bg-slate-50/50">
+                            <div className="text-xs font-bold text-slate-600">
+                              {blockRow.label}
+                            </div>
+                            {blockRow.time && (
+                              <div className="text-[10px] text-slate-400 font-mono">
+                                {blockRow.time}
                               </div>
                             )}
                           </td>
-                        );
-                      })}
-                    </tr>
+                          {weekDays.map((day, idx) => {
+                            const cell = sharedSessionsFor(day, blockRow, location);
+                            const isToday = toLocalDateString(day) === todayStr;
+                            return (
+                              <td
+                                key={idx}
+                                className={`px-2 py-2 border-b border-r border-gray-100 last:border-r-0 ${
+                                  isToday ? 'bg-violet-50/20' : ''
+                                }`}
+                              >
+                                {/* Freie Blöcke bleiben einfach leer. */}
+                                <div className="space-y-1.5 min-h-[2.5rem]">
+                                  {cell.map((s) => {
+                                    const mine = s.teacher_id === profile.id;
+                                    return (
+                                      <div
+                                        key={s.id}
+                                        className={`p-2 rounded-lg border text-xs ${
+                                          mine
+                                            ? 'bg-primary-50 border-primary-200'
+                                            : 'bg-white border-gray-200'
+                                        }`}
+                                      >
+                                        <div
+                                          className={`font-bold truncate ${
+                                            mine ? 'text-primary-800' : 'text-slate-700'
+                                          }`}
+                                        >
+                                          {s.teacher_name || 'Nicht zugeteilt'}
+                                        </div>
+                                        <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400 font-mono">
+                                          <span>
+                                            {shortTime(s.start_time)}–{shortTime(s.end_time)}
+                                          </span>
+                                          <span className="font-sans font-bold">
+                                            {s.session_students?.length || 0} Schüler
+                                          </span>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </Fragment>
                   ))}
                 </tbody>
               </table>
@@ -787,10 +820,7 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                 <span className="h-3 w-3 rounded bg-white border border-gray-200" />
                 Kollege
               </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded bg-emerald-50 border border-dashed border-emerald-200" />
-                Noch frei
-              </span>
+              <span>Leere Zelle = Block an diesem Standort noch frei</span>
             </div>
           </div>
         </div>
