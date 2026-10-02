@@ -1,0 +1,25 @@
+# Abhängigkeiten
+node_modules
+dist
+dist-ssr
+*.tsbuildinfo
+
+# Lokale Umgebungsvariablen (enthalten Zugangsdaten)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

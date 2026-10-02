@@ -1,0 +1,151 @@
+import { useEffect, useState } from 'react';
+import { BookOpen, MessageSquare } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { formatDate } from '../lib/helpers';
+import type { AttendanceStatus } from '../types';
+import { Modal } from './Modal';
+import { AttendanceBadge, ProgressBadge } from './Badges';
+
+interface HistoryEntry {
+  id: number;
+  attendance: AttendanceStatus;
+  progress: number;
+  notes: string;
+  homework: string;
+  protocols: {
+    id: number;
+    date: string;
+    subject: string;
+    topic: string;
+    teacher_name: string;
+  };
+}
+
+interface StudentHistoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  student: { id: number; name: string } | null;
+}
+
+/** Zeigt den zeitlichen Verlauf aller Protokolleinträge eines Schülers. */
+export function StudentHistoryModal({ isOpen, onClose, student }: StudentHistoryModalProps) {
+  const [entries, setEntries] = useState<HistoryEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && student) {
+      void loadHistory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, student]);
+
+  async function loadHistory() {
+    if (!student) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('protocol_attendance')
+        .select(
+          `
+          id,
+          attendance,
+          progress,
+          notes,
+          homework,
+          protocols (
+            id,
+            date,
+            subject,
+            topic,
+            teacher_name
+          )
+        `,
+        )
+        .eq('student_id', student.id);
+
+      if (error) throw error;
+
+      const sorted = ((data as unknown as HistoryEntry[]) || []).sort(
+        (a, b) => new Date(b.protocols.date).getTime() - new Date(a.protocols.date).getTime(),
+      );
+      setEntries(sorted);
+    } catch (err) {
+      console.error('Fehler beim Laden des Verlaufs:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!student) return null;
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={`Verlauf: ${student.name}`} maxWidth="max-w-3xl">
+      <div className="space-y-6">
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">Lade Daten...</div>
+        ) : entries.length === 0 ? (
+          <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+            Keine Einträge vorhanden.
+          </div>
+        ) : (
+          <div className="relative border-l-2 border-gray-100 ml-3 space-y-8 pb-4">
+            {entries.map((entry) => (
+              <div key={entry.id} className="relative pl-6">
+                <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-white border-2 border-primary-200 ring-4 ring-white" />
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-2">
+                  <div>
+                    <div className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                      {formatDate(entry.protocols.date)}
+                      <span className="text-gray-400 font-normal">|</span>
+                      <span className="text-primary-600">{entry.protocols.subject}</span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Lehrer: {entry.protocols.teacher_name}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <ProgressBadge progress={entry.progress} />
+                    <AttendanceBadge status={entry.attendance} />
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="mb-3 text-sm text-gray-800 font-medium border-b border-gray-50 pb-2">
+                    Thema: {entry.protocols.topic}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {entry.homework && (
+                      <div className="bg-amber-50/50 p-3 rounded-lg border border-amber-100/50">
+                        <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wide flex items-center gap-1 mb-1">
+                          <BookOpen size={12} /> Hausübung
+                        </div>
+                        <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                          {entry.homework}
+                        </div>
+                      </div>
+                    )}
+                    {entry.notes && (
+                      <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100/50">
+                        <div className="text-[10px] font-bold text-blue-600 uppercase tracking-wide flex items-center gap-1 mb-1">
+                          <MessageSquare size={12} /> Kommentar / Notiz
+                        </div>
+                        <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                          {entry.notes}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {!entry.homework && !entry.notes && (
+                    <div className="text-xs text-gray-400 italic">
+                      Keine individuellen Notizen oder Hausaufgaben eingetragen.
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+}

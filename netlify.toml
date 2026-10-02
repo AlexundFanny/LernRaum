@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Single-Page-App: alle Routen auf index.html umleiten,
+# damit Seiten-Reloads und der Passwort-Reset-Link nicht ins Leere laufen.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
