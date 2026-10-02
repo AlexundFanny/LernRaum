@@ -115,3 +115,34 @@ export interface SubstitutionRequest {
   // Via Join geladen:
   sessions?: Session | null;
 }
+
+/** Art einer erfassten Leistung. */
+export type ExamType = 'Schularbeit' | 'Test' | 'Prüfung';
+
+/** Symbol-Bewertung als Alternative zur Schulnote. */
+export type GradeSymbol = '+' | '~' | '-';
+
+/**
+ * Eine Schularbeit / ein Test / eine Prüfung eines Schülers.
+ *
+ * Achtung, zwei Skalen: `ProtocolAttendance.progress` ist die laufende
+ * Bewertung pro Einheit mit 5 = sehr gut. `grade_number` hier ist die
+ * Schulnote mit 1 = Sehr gut. Bewertet wird per Note und/oder per Symbol,
+ * mindestens eines der beiden Felder ist gesetzt.
+ */
+export interface StudentAssessment {
+  id: number;
+  protocol_id: number | null;
+  session_id: number | null;
+  student_id: number;
+  student_name: string;
+  teacher_id: string | null;
+  teacher_name: string | null;
+  subject: string | null;
+  exam_type: ExamType;
+  exam_date: string; // ISO-Datum (YYYY-MM-DD)
+  grade_number: number | null; // 1-5, 1 = Sehr gut
+  grade_symbol: GradeSymbol | null;
+  notes: string | null;
+  created_at: string;
+}

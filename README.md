@@ -56,11 +56,12 @@ src/
     helpers.ts              Datum/Zeit, CSV-Export, Beschriftungen
   components/
     AuthScreen.tsx          Login, Registrierung, Passwort vergessen
-    TeacherDashboard.tsx    Stundenplan, Protokollliste, Vertretungsbörse
+    TeacherDashboard.tsx    Mein Stundenplan, gemeinsamer Kalender,
+                            Protokollliste, Vertretungsbörse
     TeacherFees.tsx         Honorarübersicht (Lehrer)
     Messages.tsx            Mitteilungen
     ProtocolModal.tsx       Protokoll erfassen/bearbeiten
-    StudentHistoryModal.tsx Verlauf eines Schülers
+    StudentHistoryModal.tsx Verlauf eines Schülers (inkl. Leistungen)
     Modal.tsx, Badges.tsx   Gemeinsame UI-Bausteine
     admin/
       AdminPanel.tsx        Fünf Tabs: Einheiten, Schüler, Team, Protokolle, Finanzen
@@ -70,10 +71,16 @@ src/
 
 ## Datenbank-Sicherheit
 
-Das Verzeichnis `db/` enthält `security_policies.sql` — das Skript, das die
-Row-Level-Security-Regeln absichert (Admin-Schutz, Einladungen, Mitteilungen,
-Registrierungs-Trigger). Es wurde im Supabase SQL Editor bereits ausgeführt
-und ist hier zur Nachvollziehbarkeit abgelegt.
+Das Verzeichnis `db/` enthält die SQL-Skripte, die im Supabase SQL Editor
+ausgeführt werden:
+
+- `security_policies.sql` — sichert die Row-Level-Security ab (Admin-Schutz,
+  Einladungen, Mitteilungen, Registrierungs-Trigger). Bereits ausgeführt, hier
+  zur Nachvollziehbarkeit abgelegt.
+- `leistungen_und_kalender.sql` — legt die Tabelle `student_assessments` an
+  (Schularbeiten, Tests, Prüfungen) und erweitert das Leserecht auf
+  `sessions`/`session_students`, damit Lehrer den gemeinsamen Kalender sehen.
+  **Muss noch ausgeführt werden**, sonst bleiben die neuen Funktionen leer.
 
 ## CHANGELOG (gegenüber dem alten Build)
 
@@ -93,3 +100,29 @@ Neu:
 - Serien bekommen eine `series_id` (Grundlage für spätere Serien-Bearbeitung).
 - Super-Admins sind gegen versehentliches Löschen geschützt; Admin-Rechte
   lassen sich nur von Super-Admins vergeben.
+
+## CHANGELOG (laufend)
+
+Neu:
+- **Leistungen (SA/Test/Prüfung).** Im Protokoll gibt es pro Schüler einen
+  Abschnitt für Schularbeiten, Tests und Prüfungen: Prüfungsart, Datum und
+  Bewertung. Bewertet wird als Schulnote 1–5 und/oder als Symbol (+ ~ −).
+  Das Datum ist frei wählbar und mit dem Datum der Einheit vorbelegt, damit
+  angekündigte Schularbeiten in der Zukunft eingetragen werden können.
+  Kommt zusätzlich zur laufenden Bewertung pro Einheit.
+- **Prüfungstermine in der Lehreransicht.** Alle erfassten Leistungen eines
+  Schülers erscheinen im Protokoll bei genau diesem Schüler — auch die, die
+  ein Kollege eingetragen hat (dann nur lesbar). Ebenso im Schülerverlauf
+  als eigener Block, zukünftige Termine sind als "angekündigt" markiert.
+  Im CSV-Export als Spalte `Leistungen` sowie als eigener Export.
+- **Gemeinsamer Kalender.** Dritter Reiter neben "Mein Stundenplan" und
+  "Vertretungsbörse", auch für Lehrer. Wochenraster über alle Lehrer:
+  Zeitblöcke als Zeilen, Wochentage als Spalten, freie Blöcke sind als
+  "frei" markiert, die eigenen Einheiten sind hervorgehoben. Filter nach
+  Standort. Reine Anzeige — eingeteilt und verschoben wird nur vom Admin.
+
+Hinweis zu den zwei Bewertungsskalen:
+- laufende Bewertung pro Einheit (`protocol_attendance.progress`):
+  5 = sehr gut … 1 = schlecht
+- Schulnote einer Leistung (`student_assessments.grade_number`):
+  1 = Sehr gut … 5 = Nicht genügend

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, MessageSquare } from 'lucide-react';
+import { BookOpen, GraduationCap, MessageSquare } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatDate } from '../lib/helpers';
-import type { AttendanceStatus } from '../types';
+import type { AttendanceStatus, StudentAssessment } from '../types';
 import { Modal } from './Modal';
-import { AttendanceBadge, ProgressBadge } from './Badges';
+import { AttendanceBadge, ExamTypeBadge, GradeBadge, ProgressBadge } from './Badges';
 
 interface HistoryEntry {
   id: number;
@@ -30,6 +30,7 @@ interface StudentHistoryModalProps {
 /** Zeigt den zeitlichen Verlauf aller Protokolleinträge eines Schülers. */
 export function StudentHistoryModal({ isOpen, onClose, student }: StudentHistoryModalProps) {
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
+  const [assessments, setAssessments] = useState<StudentAssessment[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -69,6 +70,17 @@ export function StudentHistoryModal({ isOpen, onClose, student }: StudentHistory
         (a, b) => new Date(b.protocols.date).getTime() - new Date(a.protocols.date).getTime(),
       );
       setEntries(sorted);
+
+      // Schularbeiten, Tests und Prüfungen separat — die hängen am Schüler,
+      // nicht am Protokoll, und können auch in der Zukunft liegen.
+      const { data: assessmentData, error: assessmentError } = await supabase
+        .from('student_assessments')
+        .select('*')
+        .eq('student_id', student.id)
+        .order('exam_date', { ascending: false });
+
+      if (assessmentError) throw assessmentError;
+      setAssessments((assessmentData as StudentAssessment[]) || []);
     } catch (err) {
       console.error('Fehler beim Laden des Verlaufs:', err);
     } finally {
@@ -81,11 +93,54 @@ export function StudentHistoryModal({ isOpen, onClose, student }: StudentHistory
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Verlauf: ${student.name}`} maxWidth="max-w-3xl">
       <div className="space-y-6">
+        {/* Schularbeiten, Tests und Prüfungen — eigener Block, damit die
+            Notenentwicklung auf einen Blick sichtbar ist. */}
+        {!loading && assessments.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-gray-50 px-5 py-3 border-b border-gray-200 flex items-center gap-2">
+              <GraduationCap size={16} className="text-gray-500" />
+              <h4 className="font-bold text-gray-700 text-xs uppercase tracking-wide">
+                Schularbeiten, Tests &amp; Prüfungen
+              </h4>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {assessments.map((a) => {
+                const future = a.exam_date > new Date().toISOString().slice(0, 10);
+                return (
+                  <div
+                    key={a.id}
+                    className="px-5 py-3 flex flex-wrap items-center gap-2 hover:bg-gray-50/60 transition-colors"
+                  >
+                    <ExamTypeBadge type={a.exam_type} />
+                    <span className="text-sm font-bold text-gray-800">
+                      {formatDate(a.exam_date)}
+                    </span>
+                    {future && (
+                      <span className="text-[10px] font-bold uppercase tracking-wide text-blue-600 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded">
+                        angekündigt
+                      </span>
+                    )}
+                    {a.subject && <span className="text-xs text-gray-500">{a.subject}</span>}
+                    <div className="ml-auto flex items-center gap-2">
+                      <GradeBadge grade={a.grade_number} symbol={a.grade_symbol} />
+                      {a.teacher_name && (
+                        <span className="text-[10px] text-gray-400 hidden sm:inline">
+                          {a.teacher_name}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-8 text-gray-500">Lade Daten...</div>
         ) : entries.length === 0 ? (
           <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-            Keine Einträge vorhanden.
+            Keine Protokolleinträge vorhanden.
           </div>
         ) : (
           <div className="relative border-l-2 border-gray-100 ml-3 space-y-8 pb-4">

@@ -11,6 +11,7 @@ import {
   FileText,
   Funnel,
   MapPin,
+  Users,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import {
@@ -26,28 +27,33 @@ import type {
   Protocol,
   Session,
   Student,
+  StudentAssessment,
   SubstitutionRequest,
 } from '../types';
+import { LOCATIONS, TIME_BLOCKS } from '../constants';
 import { ProtocolModal } from './ProtocolModal';
 
 interface TeacherDashboardProps {
   profile: Profile;
 }
 
-type Tab = 'calendar' | 'substitutions';
+type Tab = 'calendar' | 'shared' | 'substitutions';
 
 /** Lehreransicht: eigener Stundenplan, Protokolle, Vertretungsbörse. */
 export function TeacherDashboard({ profile }: TeacherDashboardProps) {
   const [tab, setTab] = useState<Tab>('calendar');
   const [weekOffset, setWeekOffset] = useState(0);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [allSessions, setAllSessions] = useState<Session[]>([]); // für den gemeinsamen Kalender
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [assessments, setAssessments] = useState<StudentAssessment[]>([]);
   const [openSubs, setOpenSubs] = useState<SubstitutionRequest[]>([]);
   const [mySubs, setMySubs] = useState<SubstitutionRequest[]>([]);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [studentFilter, setStudentFilter] = useState<number | 'all'>('all');
+  const [sharedLocation, setSharedLocation] = useState<string>('all');
 
   useEffect(() => {
     void loadData();
@@ -70,9 +76,28 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
     // Schülerliste für die Schulstufen-Anzeige
     const { data: studentData } = await supabase.from('students').select('*').order('name');
 
+    // Eigene Leistungseinträge für den CSV-Export
+    const { data: assessmentData } = await supabase
+      .from('student_assessments')
+      .select('*')
+      .eq('teacher_id', profile.id)
+      .order('exam_date', { ascending: false });
+
     if (sessionData) setSessions(sessionData as Session[]);
     if (protocolData) setProtocols(protocolData as Protocol[]);
     if (studentData) setStudents(studentData as Student[]);
+    if (assessmentData) setAssessments(assessmentData as StudentAssessment[]);
+
+    // Gemeinsamer Kalender: alle Einheiten, nicht nur die eigenen.
+    // Braucht die Leseregel aus db/leistungen_und_kalender.sql.
+    if (tab === 'shared') {
+      const { data: all, error } = await supabase
+        .from('sessions')
+        .select('*, session_students(student_id, student_name, subject)')
+        .order('date');
+      if (error) console.error('Gemeinsamer Kalender konnte nicht geladen werden:', error);
+      if (all) setAllSessions(all as Session[]);
+    }
 
     if (tab === 'substitutions') {
       const { data: open } = await supabase
@@ -142,8 +167,37 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
       Schueler: p.protocol_attendance
         ?.map((a) => `${a.student_name} (${attendanceWord(a.attendance)}, ${progressLabel(a.progress)})`)
         .join('; '),
+      // Schularbeiten/Tests/Prüfungen, die in dieser Einheit erfasst wurden
+      Leistungen: assessments
+        .filter((a) => a.protocol_id === p.id)
+        .map((a) => `${a.student_name}: ${a.exam_type} ${a.exam_date} ${gradeWord(a)}`)
+        .join('; '),
     }));
     exportToCsv(rows, `Protokolle_${profile.name}_${new Date().toISOString().slice(0, 10)}.csv`);
+  }
+
+  /** Eigener Export aller erfassten Schularbeiten, Tests und Prüfungen. */
+  function exportAssessments() {
+    const relevant =
+      studentFilter === 'all'
+        ? assessments
+        : assessments.filter((a) => a.student_id === studentFilter);
+
+    if (relevant.length === 0) {
+      alert('Keine Schularbeiten, Tests oder Prüfungen zum Exportieren vorhanden.');
+      return;
+    }
+
+    const rows = relevant.map((a) => ({
+      Schueler: a.student_name,
+      Art: a.exam_type,
+      Datum: a.exam_date,
+      Fach: a.subject,
+      Note: a.grade_number ?? '',
+      Symbol: a.grade_symbol ?? '',
+      Lehrer: a.teacher_name,
+    }));
+    exportToCsv(rows, `Leistungen_${profile.name}_${new Date().toISOString().slice(0, 10)}.csv`);
   }
 
   async function acceptSubstitution(req: SubstitutionRequest) {
@@ -201,6 +255,50 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
     return protocols.some((p) => p.session_id === sessionId);
   }
 
+  /**
+   * Zeilen des gemeinsamen Kalenders: die drei Standardblöcke plus eine
+   * Sammelzeile für Einheiten mit abweichender Startzeit, damit nichts
+   * unsichtbar wird.
+   */
+  interface SharedRow {
+    label: string;
+    time: string | null;
+    start: string | null; // HH:MM, null = Sammelzeile
+  }
+
+  const blockStarts = useMemo(() => TIME_BLOCKS.map((b) => b.start), []);
+
+  const sharedRows: SharedRow[] = useMemo(() => {
+    const rows: SharedRow[] = TIME_BLOCKS.map((b) => ({
+      label: b.label,
+      time: `${b.start}–${b.end}`,
+      start: b.start,
+    }));
+
+    // Die Sammelzeile nur zeigen, wenn diese Woche wirklich eine Einheit
+    // außerhalb der Standardblöcke liegt — sonst wäre sie nur leeres Raster.
+    const weekDates = new Set(weekDays.map((d) => toLocalDateString(d)));
+    const hasOffBlock = allSessions.some(
+      (s) => weekDates.has(s.date) && !blockStarts.includes((s.start_time || '').slice(0, 5)),
+    );
+    if (hasOffBlock) rows.push({ label: 'Andere Zeit', time: null, start: null });
+
+    return rows;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allSessions, weekOffset, blockStarts]);
+
+  function sharedSessionsFor(day: Date, row: SharedRow): Session[] {
+    const dateStr = toLocalDateString(day);
+    return allSessions
+      .filter((s) => s.date === dateStr)
+      .filter((s) => sharedLocation === 'all' || s.location === sharedLocation)
+      .filter((s) => {
+        const start = (s.start_time || '').slice(0, 5);
+        return row.start ? start === row.start : !blockStarts.includes(start);
+      })
+      .sort((a, b) => a.start_time.localeCompare(b.start_time));
+  }
+
   // "Offen" zählt nur vergangene/heutige Einheiten ohne Protokoll,
   // nicht zukünftige (die kann man ja noch nicht protokollieren).
   const todayStr = toLocalDateString(new Date());
@@ -231,6 +329,16 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
           }`}
         >
           <Calendar size={16} /> Mein Stundenplan
+        </button>
+        <button
+          onClick={() => setTab('shared')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+            tab === 'shared'
+              ? 'bg-violet-50 text-violet-700 shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          <Users size={16} /> Gemeinsamer Kalender
         </button>
         <button
           onClick={() => setTab('substitutions')}
@@ -420,12 +528,21 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
                 <FileText size={20} className="text-primary-600" />
                 Letzte Protokolle
               </h2>
-              <button
-                onClick={exportProtocols}
-                className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-primary-600 border border-slate-200 hover:border-primary-600 px-3 py-1.5 rounded-lg transition-all uppercase tracking-wide"
-              >
-                <Download size={14} /> CSV Export
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={exportAssessments}
+                  className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-violet-600 border border-slate-200 hover:border-violet-600 px-3 py-1.5 rounded-lg transition-all uppercase tracking-wide"
+                  title="Alle Schularbeiten, Tests und Prüfungen als CSV"
+                >
+                  <Download size={14} /> Leistungen
+                </button>
+                <button
+                  onClick={exportProtocols}
+                  className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-primary-600 border border-slate-200 hover:border-primary-600 px-3 py-1.5 rounded-lg transition-all uppercase tracking-wide"
+                >
+                  <Download size={14} /> CSV Export
+                </button>
+              </div>
             </div>
             <div className="divide-y divide-gray-50">
               {filteredProtocols.length === 0 && (
@@ -498,6 +615,185 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
             </div>
           </div>
         </>
+      )}
+
+      {tab === 'shared' && (
+        <div className="space-y-6">
+          {/* Hinweis: reine Anzeige. Einteilen und Verschieben macht der Admin. */}
+          <div className="bg-violet-50/60 border border-violet-100 rounded-2xl px-5 py-4 flex items-start gap-3">
+            <Users size={18} className="text-violet-500 mt-0.5 shrink-0" />
+            <div className="text-sm text-violet-900">
+              <div className="font-bold">Wochenübersicht über alle Lehrer</div>
+              <div className="text-violet-700/80 text-xs mt-0.5">
+                Zum Schauen gedacht: wer ist wann wo eingeteilt, und welche Blöcke sind noch
+                frei. Eingeteilt und verschoben wird weiterhin nur von der Verwaltung.
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap justify-between items-center gap-3">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Calendar size={20} className="text-violet-600" />
+                Alle Einheiten
+              </h2>
+              <div className="flex items-center gap-3">
+                <select
+                  value={sharedLocation}
+                  onChange={(e) => setSharedLocation(e.target.value)}
+                  className="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-violet-500 cursor-pointer"
+                >
+                  <option value="all">Alle Standorte</option>
+                  {LOCATIONS.map((l) => (
+                    <option key={l} value={l}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-1 border border-slate-200">
+                  <button
+                    onClick={() => setWeekOffset((w) => w - 1)}
+                    className="p-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all text-slate-600"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <span className="font-semibold text-slate-600 text-sm px-2 min-w-[120px] text-center">
+                    {formatDayMonth(weekDays[0])} - {formatDayMonth(weekDays[6])}
+                  </span>
+                  <button
+                    onClick={() => setWeekOffset((w) => w + 1)}
+                    className="p-1.5 hover:bg-white hover:shadow-sm rounded-md transition-all text-slate-600"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Raster: Zeitblöcke als Zeilen, Wochentage als Spalten.
+                So ist auf einen Blick erkennbar, welcher Block noch frei ist. */}
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/80">
+                    <th className="w-28 px-3 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-r border-gray-100">
+                      Block
+                    </th>
+                    {weekDays.map((day, idx) => {
+                      const isToday = toLocalDateString(day) === todayStr;
+                      return (
+                        <th
+                          key={idx}
+                          className={`px-2 py-3 border-b border-r border-gray-100 last:border-r-0 ${
+                            isToday ? 'bg-violet-50/60' : ''
+                          }`}
+                        >
+                          <div
+                            className={`text-[10px] font-bold uppercase tracking-wide ${
+                              isToday ? 'text-violet-600' : 'text-slate-400'
+                            }`}
+                          >
+                            {day.toLocaleDateString('de-DE', { weekday: 'short' })}
+                          </div>
+                          <div
+                            className={`text-base font-bold ${
+                              isToday ? 'text-violet-700' : 'text-slate-600'
+                            }`}
+                          >
+                            {day.getDate()}
+                          </div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sharedRows.map((blockRow) => (
+                    <tr key={blockRow.label} className="align-top">
+                      <td className="px-3 py-3 border-b border-r border-gray-100 bg-slate-50/50">
+                        <div className="text-xs font-bold text-slate-600">{blockRow.label}</div>
+                        {blockRow.time && (
+                          <div className="text-[10px] text-slate-400 font-mono">
+                            {blockRow.time}
+                          </div>
+                        )}
+                      </td>
+                      {weekDays.map((day, idx) => {
+                        const cell = sharedSessionsFor(day, blockRow);
+                        const isToday = toLocalDateString(day) === todayStr;
+                        return (
+                          <td
+                            key={idx}
+                            className={`px-2 py-2 border-b border-r border-gray-100 last:border-r-0 ${
+                              isToday ? 'bg-violet-50/20' : ''
+                            }`}
+                          >
+                            {cell.length === 0 ? (
+                              <div className="text-[10px] text-emerald-600/70 font-bold uppercase tracking-wide text-center py-3 bg-emerald-50/40 rounded-lg border border-dashed border-emerald-100">
+                                frei
+                              </div>
+                            ) : (
+                              <div className="space-y-1.5">
+                                {cell.map((s) => {
+                                  const mine = s.teacher_id === profile.id;
+                                  return (
+                                    <div
+                                      key={s.id}
+                                      className={`p-2 rounded-lg border text-xs ${
+                                        mine
+                                          ? 'bg-primary-50 border-primary-200'
+                                          : 'bg-white border-gray-200'
+                                      }`}
+                                    >
+                                      <div
+                                        className={`font-bold truncate ${
+                                          mine ? 'text-primary-800' : 'text-slate-700'
+                                        }`}
+                                      >
+                                        {s.teacher_name || 'Nicht zugeteilt'}
+                                      </div>
+                                      <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5">
+                                        <MapPin size={9} className="shrink-0" />
+                                        <span className="truncate">{s.location}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between mt-1 text-[10px] text-slate-400 font-mono">
+                                        <span>
+                                          {shortTime(s.start_time)}–{shortTime(s.end_time)}
+                                        </span>
+                                        <span className="font-sans font-bold">
+                                          {s.session_students?.length || 0} Schüler
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="px-6 py-3 border-t border-gray-100 bg-slate-50/50 flex flex-wrap items-center gap-4 text-[10px] text-slate-500">
+              <span className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded bg-primary-50 border border-primary-200" />
+                Eigene Einheit
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded bg-white border border-gray-200" />
+                Kollege
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded bg-emerald-50 border border-dashed border-emerald-200" />
+                Noch frei
+              </span>
+            </div>
+          </div>
+        </div>
       )}
 
       {tab === 'substitutions' && (
@@ -613,6 +909,14 @@ export function TeacherDashboard({ profile }: TeacherDashboardProps) {
       />
     </div>
   );
+}
+
+/** Bewertung einer Leistung als Text für den CSV-Export. */
+function gradeWord(a: StudentAssessment): string {
+  const parts: string[] = [];
+  if (a.grade_number) parts.push(`Note ${a.grade_number}`);
+  if (a.grade_symbol) parts.push(a.grade_symbol);
+  return parts.length > 0 ? `(${parts.join(' / ')})` : '(offen)';
 }
 
 /** Kurzwort für den CSV-Export (ersetzt die alte, fehlerhafte present/absent-Logik). */

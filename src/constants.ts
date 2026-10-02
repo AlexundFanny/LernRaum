@@ -46,3 +46,26 @@ export const ATTENDANCE_OPTIONS = [
   { key: 'late', label: 'Verspätet' },
   { key: 'excused', label: 'Entsch.' },
 ] as const;
+
+/** Prüfungsarten für die Leistungserfassung. */
+export const EXAM_TYPES = ['Schularbeit', 'Test', 'Prüfung'] as const;
+
+/**
+ * Schulnoten 1-5 mit den üblichen Bezeichnungen.
+ * Nicht mit der laufenden Bewertung pro Einheit verwechseln — die läuft
+ * umgekehrt (5 = sehr gut).
+ */
+export const SCHOOL_GRADES = [
+  { value: 1, label: '1 – Sehr gut' },
+  { value: 2, label: '2 – Gut' },
+  { value: 3, label: '3 – Befriedigend' },
+  { value: 4, label: '4 – Genügend' },
+  { value: 5, label: '5 – Nicht genügend' },
+] as const;
+
+/** Symbol-Bewertung als Alternative zur Note. */
+export const GRADE_SYMBOLS = [
+  { value: '+', label: '+ (gut gelöst)' },
+  { value: '~', label: '~ (teilweise)' },
+  { value: '-', label: '– (nicht geschafft)' },
+] as const;

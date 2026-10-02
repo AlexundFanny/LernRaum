@@ -4,16 +4,32 @@ import {
   BookOpen,
   CircleCheckBig,
   Clock,
+  GraduationCap,
+  Plus,
   Trash2,
   MessageSquare,
   UserPlus,
+  X,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { formatDate, durationMinutes, shortTime } from '../lib/helpers';
-import { SUBJECTS, ATTENDANCE_OPTIONS } from '../constants';
-import type { AttendanceStatus, Session } from '../types';
+import {
+  SUBJECTS,
+  ATTENDANCE_OPTIONS,
+  EXAM_TYPES,
+  SCHOOL_GRADES,
+  GRADE_SYMBOLS,
+} from '../constants';
+import type {
+  AttendanceStatus,
+  ExamType,
+  GradeSymbol,
+  Session,
+  StudentAssessment,
+} from '../types';
 import { Modal } from './Modal';
 import { StudentHistoryModal } from './StudentHistoryModal';
+import { ExamTypeBadge, GradeBadge } from './Badges';
 
 /** Ein Schülerzeile im Protokoll (Entwurfszustand). */
 interface AttendanceRow {
@@ -24,6 +40,33 @@ interface AttendanceRow {
   progress: number;
   notes: string;
   homework: string;
+}
+
+/**
+ * Eine Leistung (Schularbeit / Test / Prüfung) im Entwurfszustand.
+ *
+ * Gezeigt werden alle Leistungen des Schülers, nicht nur die aus dieser
+ * Einheit — so sieht der Lehrer auch eine angekündigte Schularbeit, die ein
+ * Kollege eingetragen hat. Ändern darf er nur die eigenen Einträge, weil
+ * die Sicherheitsregeln der Datenbank nichts anderes zulassen.
+ */
+interface AssessmentDraft {
+  key: string; // stabiler React-Key, auch für ungespeicherte Zeilen
+  id?: number; // gesetzt = liegt bereits in der Datenbank
+  student_id: number;
+  student_name: string;
+  exam_type: ExamType;
+  exam_date: string;
+  grade_number: number | null;
+  grade_symbol: GradeSymbol | null;
+  teacher_name: string | null;
+  editable: boolean;
+}
+
+let draftCounter = 0;
+function nextDraftKey(): string {
+  draftCounter += 1;
+  return `neu-${draftCounter}`;
 }
 
 interface ProtocolModalProps {
@@ -60,6 +103,8 @@ export function ProtocolModal({
   const [notes, setNotes] = useState('');
   const [homework, setHomework] = useState('');
   const [rows, setRows] = useState<AttendanceRow[]>([]);
+  const [assessments, setAssessments] = useState<AssessmentDraft[]>([]);
+  const [removedAssessmentIds, setRemovedAssessmentIds] = useState<number[]>([]);
   const [historyStudent, setHistoryStudent] = useState<{ id: number; name: string } | null>(null);
 
   useEffect(() => {
@@ -154,11 +199,48 @@ export function ProtocolModal({
       }
 
       setRows(Array.from(rowMap.values()));
+      await loadAssessments(Array.from(rowMap.keys()));
     } catch (err) {
       console.error('Fehler beim Laden:', err);
     } finally {
       setSaving(false);
     }
+  }
+
+  /** Alle bisher erfassten Leistungen der Schüler dieser Einheit. */
+  async function loadAssessments(studentIds: number[]) {
+    setRemovedAssessmentIds([]);
+    if (studentIds.length === 0) {
+      setAssessments([]);
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('student_assessments')
+      .select('*')
+      .in('student_id', studentIds)
+      .order('exam_date', { ascending: false });
+
+    if (error) {
+      console.error('Leistungen konnten nicht geladen werden:', error);
+      setAssessments([]);
+      return;
+    }
+
+    setAssessments(
+      ((data as StudentAssessment[]) || []).map((a) => ({
+        key: `db-${a.id}`,
+        id: a.id,
+        student_id: a.student_id,
+        student_name: a.student_name,
+        exam_type: a.exam_type,
+        exam_date: a.exam_date,
+        grade_number: a.grade_number,
+        grade_symbol: a.grade_symbol,
+        teacher_name: a.teacher_name,
+        editable: isAdmin || a.teacher_id === currentProfileId,
+      })),
+    );
   }
 
   function updateRow(studentId: number, field: keyof AttendanceRow, value: unknown) {
@@ -167,9 +249,66 @@ export function ProtocolModal({
     );
   }
 
+  /** Neue, leere Leistungszeile für einen Schüler. Datum = Datum der Einheit. */
+  function addAssessment(studentId: number, studentName: string) {
+    setAssessments((prev) => [
+      ...prev,
+      {
+        key: nextDraftKey(),
+        student_id: studentId,
+        student_name: studentName,
+        exam_type: 'Schularbeit',
+        exam_date: session?.date || '',
+        grade_number: null,
+        grade_symbol: null,
+        teacher_name: currentProfileName,
+        editable: true,
+      },
+    ]);
+  }
+
+  function updateAssessment(key: string, patch: Partial<AssessmentDraft>) {
+    setAssessments((prev) => prev.map((a) => (a.key === key ? { ...a, ...patch } : a)));
+  }
+
+  /** Leistungen eines Schülers, neueste zuerst. */
+  function assessmentsFor(studentId: number): AssessmentDraft[] {
+    return assessments
+      .filter((a) => a.student_id === studentId)
+      .sort((a, b) => b.exam_date.localeCompare(a.exam_date));
+  }
+
+  function removeAssessment(key: string) {
+    const target = assessments.find((a) => a.key === key);
+    if (target?.id) {
+      if (!confirm('Diesen Eintrag wirklich entfernen?')) return;
+      setRemovedAssessmentIds((prev) => [...prev, target.id as number]);
+    }
+    setAssessments((prev) => prev.filter((a) => a.key !== key));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!session || saving) return;
+
+    // Die Datenbank verlangt mindestens eine der beiden Bewertungsarten.
+    // Lieber hier abfangen als den Nutzer in einen Constraint-Fehler laufen
+    // lassen, bei dem schon das halbe Protokoll geschrieben wäre.
+    const unrated = assessments.find(
+      (a) => a.editable && a.grade_number === null && a.grade_symbol === null,
+    );
+    if (unrated) {
+      alert(
+        `Bitte bei der Leistung von ${unrated.student_name} eine Note oder ein Symbol auswählen.`,
+      );
+      return;
+    }
+    const undated = assessments.find((a) => a.editable && !a.exam_date);
+    if (undated) {
+      alert(`Bitte bei der Leistung von ${undated.student_name} ein Datum angeben.`);
+      return;
+    }
+
     setSaving(true);
     try {
       const minutes = durationMinutes(session.start_time, session.end_time);
@@ -245,6 +384,48 @@ export function ProtocolModal({
             throw error;
           }
         }
+      }
+
+      // Leistungen (SA/Test/Prüfung) speichern
+      if (removedAssessmentIds.length > 0) {
+        const { error } = await supabase
+          .from('student_assessments')
+          .delete()
+          .in('id', removedAssessmentIds);
+        if (error) throw error;
+      }
+
+      const newAssessments = assessments.filter((a) => !a.id);
+      if (newAssessments.length > 0) {
+        const { error } = await supabase.from('student_assessments').insert(
+          newAssessments.map((a) => ({
+            protocol_id: pid,
+            session_id: session.id,
+            student_id: a.student_id,
+            student_name: a.student_name,
+            teacher_id: currentProfileId,
+            teacher_name: currentProfileName,
+            subject,
+            exam_type: a.exam_type,
+            exam_date: a.exam_date,
+            grade_number: a.grade_number,
+            grade_symbol: a.grade_symbol,
+          })),
+        );
+        if (error) throw error;
+      }
+
+      for (const a of assessments.filter((x) => x.id && x.editable)) {
+        const { error } = await supabase
+          .from('student_assessments')
+          .update({
+            exam_type: a.exam_type,
+            exam_date: a.exam_date,
+            grade_number: a.grade_number,
+            grade_symbol: a.grade_symbol,
+          })
+          .eq('id', a.id);
+        if (error) throw error;
       }
 
       // Bei neuem Protokoll ggf. Lehrer-Zuordnung anpassen
@@ -445,6 +626,128 @@ export function ProtocolModal({
                         className="w-full pl-9 pr-3 py-2 text-sm bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-primary-200 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all placeholder-gray-400 hover:bg-white hover:border-gray-200"
                       />
                     </div>
+                  </div>
+
+                  {/* Leistungen: Schularbeit / Test / Prüfung mit Note.
+                      Kommt zusätzlich zur laufenden Bewertung oben. */}
+                  <div className="mt-4 pl-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <GraduationCap size={12} /> Schularbeiten, Tests &amp; Prüfungen
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => addAssessment(row.student_id, row.student_name)}
+                        className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-primary-600 hover:text-primary-700 bg-primary-50 hover:bg-primary-100 border border-primary-100 px-2 py-1 rounded-lg transition-all"
+                      >
+                        <Plus size={12} /> Hinzufügen
+                      </button>
+                    </div>
+
+                    {assessmentsFor(row.student_id).length === 0 ? (
+                      <div className="text-xs text-gray-400 italic bg-gray-50/60 border border-dashed border-gray-200 rounded-xl px-3 py-2">
+                        Noch keine Schularbeit, kein Test und keine Prüfung erfasst.
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {assessmentsFor(row.student_id).map((a) =>
+                          a.editable ? (
+                            <div
+                              key={a.key}
+                              className="grid grid-cols-2 lg:grid-cols-[1.2fr_1fr_1.4fr_1.2fr_auto] gap-2 items-center bg-white border border-gray-200 rounded-xl p-2 shadow-sm"
+                            >
+                              <select
+                                value={a.exam_type}
+                                onChange={(e) =>
+                                  updateAssessment(a.key, {
+                                    exam_type: e.target.value as ExamType,
+                                  })
+                                }
+                                className="px-2 py-1.5 text-xs font-medium border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                              >
+                                {EXAM_TYPES.map((t) => (
+                                  <option key={t} value={t}>
+                                    {t}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <input
+                                type="date"
+                                value={a.exam_date}
+                                onChange={(e) =>
+                                  updateAssessment(a.key, { exam_date: e.target.value })
+                                }
+                                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500"
+                              />
+
+                              <select
+                                value={a.grade_number ?? ''}
+                                onChange={(e) =>
+                                  updateAssessment(a.key, {
+                                    grade_number: e.target.value ? Number(e.target.value) : null,
+                                  })
+                                }
+                                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                              >
+                                <option value="">Keine Note</option>
+                                {SCHOOL_GRADES.map((g) => (
+                                  <option key={g.value} value={g.value}>
+                                    {g.label}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <select
+                                value={a.grade_symbol ?? ''}
+                                onChange={(e) =>
+                                  updateAssessment(a.key, {
+                                    grade_symbol: e.target.value
+                                      ? (e.target.value as GradeSymbol)
+                                      : null,
+                                  })
+                                }
+                                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                              >
+                                <option value="">Kein Symbol</option>
+                                {GRADE_SYMBOLS.map((s) => (
+                                  <option key={s.value} value={s.value}>
+                                    {s.label}
+                                  </option>
+                                ))}
+                              </select>
+
+                              <button
+                                type="button"
+                                onClick={() => removeAssessment(a.key)}
+                                className="justify-self-end text-gray-300 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-all"
+                                title="Eintrag entfernen"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          ) : (
+                            // Eintrag eines Kollegen: nur lesen. Die
+                            // Sicherheitsregeln lassen fremde Änderungen nicht zu.
+                            <div
+                              key={a.key}
+                              className="flex flex-wrap items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2"
+                            >
+                              <ExamTypeBadge type={a.exam_type} />
+                              <span className="text-xs font-bold text-slate-600">
+                                {formatDate(a.exam_date)}
+                              </span>
+                              <GradeBadge grade={a.grade_number} symbol={a.grade_symbol} />
+                              {a.teacher_name && (
+                                <span className="text-[10px] text-slate-400 ml-auto">
+                                  von {a.teacher_name}
+                                </span>
+                              )}
+                            </div>
+                          ),
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
