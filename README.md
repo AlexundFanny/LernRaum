@@ -137,7 +137,8 @@ Neu:
   Bewertung. Bewertet wird als Schulnote 1–5 und/oder als Symbol (+ ~ −).
   Das Datum ist frei wählbar und mit dem Datum der Einheit vorbelegt, damit
   angekündigte Schularbeiten in der Zukunft eingetragen werden können.
-  Kommt zusätzlich zur laufenden Bewertung pro Einheit.
+  Die Bewertung ist optional: ein Termin ohne Note erscheint als „Offen“
+  und kann später benotet werden. Kommt zusätzlich zur laufenden Bewertung pro Einheit.
 - **Prüfungstermine in der Lehreransicht.** Alle erfassten Leistungen eines
   Schülers erscheinen im Protokoll bei genau diesem Schüler — auch die, die
   ein Kollege eingetragen hat (dann nur lesbar). Ebenso im Schülerverlauf

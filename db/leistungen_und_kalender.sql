@@ -13,7 +13,7 @@
 -- --- Abschnitt 1: Tabelle für Leistungen ---------------------------------
 -- Eine Zeile = eine Schularbeit / ein Test / eine Prüfung eines Schülers.
 -- Die Bewertung kann als Schulnote (1-5) und/oder als Symbol (+ ~ -)
--- festgehalten werden; mindestens eines von beiden muss gesetzt sein.
+-- festgehalten werden. Fehlen beide, ist der Termin noch offen.
 --
 -- Achtung auf die zwei Skalen im Projekt:
 --   protocol_attendance.progress  5 = sehr gut  ... 1 = schlecht
@@ -43,11 +43,14 @@ create table if not exists public.student_assessments (
   constraint student_assessments_grade_number_check
     check (grade_number is null or grade_number between 1 and 5),
   constraint student_assessments_grade_symbol_check
-    check (grade_symbol is null or grade_symbol in ('+', '~', '-')),
-  -- Eine Leistung ohne jede Bewertung wäre ein leerer Eintrag.
-  constraint student_assessments_grade_present_check
-    check (grade_number is not null or grade_symbol is not null)
+    check (grade_symbol is null or grade_symbol in ('+', '~', '-'))
 );
+
+-- Ein Termin darf ohne Bewertung eingetragen werden (angekündigte
+-- Schularbeit); die Note wird nachgetragen. Eine frühere Fassung dieses
+-- Skripts hat das verboten — die Regel hier wieder entfernen.
+alter table public.student_assessments
+  drop constraint if exists student_assessments_grade_present_check;
 
 create index if not exists student_assessments_student_idx
   on public.student_assessments (student_id, exam_date desc);

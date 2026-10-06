@@ -291,18 +291,9 @@ export function ProtocolModal({
     e.preventDefault();
     if (!session || saving) return;
 
-    // Die Datenbank verlangt mindestens eine der beiden Bewertungsarten.
-    // Lieber hier abfangen als den Nutzer in einen Constraint-Fehler laufen
-    // lassen, bei dem schon das halbe Protokoll geschrieben wäre.
-    const unrated = assessments.find(
-      (a) => a.editable && a.grade_number === null && a.grade_symbol === null,
-    );
-    if (unrated) {
-      alert(
-        `Bitte bei der Leistung von ${unrated.student_name} eine Note oder ein Symbol auswählen.`,
-      );
-      return;
-    }
+    // Eine Leistung ohne Note ist erlaubt (Termin vorab eintragen), ein
+    // Datum braucht sie aber. Lieber hier abfangen als in einen
+    // Datenbankfehler laufen, bei dem schon das halbe Protokoll geschrieben wäre.
     const undated = assessments.find((a) => a.editable && !a.exam_date);
     if (undated) {
       alert(`Bitte bei der Leistung von ${undated.student_name} ein Datum angeben.`);

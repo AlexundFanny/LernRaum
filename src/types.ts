@@ -127,8 +127,8 @@ export type GradeSymbol = '+' | '~' | '-';
  *
  * Achtung, zwei Skalen: `ProtocolAttendance.progress` ist die laufende
  * Bewertung pro Einheit mit 5 = sehr gut. `grade_number` hier ist die
- * Schulnote mit 1 = Sehr gut. Bewertet wird per Note und/oder per Symbol,
- * mindestens eines der beiden Felder ist gesetzt.
+ * Schulnote mit 1 = Sehr gut. Bewertet wird per Note und/oder per Symbol;
+ * sind beide leer, ist der Termin eingetragen, aber noch nicht benotet.
  */
 export interface StudentAssessment {
   id: number;
