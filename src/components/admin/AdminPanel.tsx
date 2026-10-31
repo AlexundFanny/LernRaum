@@ -1090,8 +1090,12 @@ export function AdminPanel({ profile }: AdminPanelProps) {
                 placeholder="max@schule.at"
               />
             </div>
+            <p className="text-sm text-slate-500">
+              Es wird keine E-Mail verschickt. Gib der Person Bescheid, dass sie sich jetzt in der
+              App über „Registrieren“ mit genau dieser E-Mail-Adresse ein Konto anlegen kann.
+            </p>
             <button className="w-full py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-medium transition-colors">
-              Einladung Senden
+              Einladung anlegen
             </button>
           </form>
         </ModalWrapper>

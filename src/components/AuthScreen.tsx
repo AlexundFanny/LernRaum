@@ -12,12 +12,34 @@ interface StatusMessage {
 /**
  * Login-, Registrierungs- und Passwort-vergessen-Ansicht.
  *
- * Hinweis zur Sicherheit: Die Einladungsprüfung bei der Registrierung ist hier
- * nur eine freundliche Vorab-Rückmeldung. Der eigentliche Schutz liegt im
- * Datenbank-Trigger (handle_new_user), der ohne gültige Einladung ablehnt und
- * neue Konten nie zu Admins macht. Es werden daher bewusst keine Rollen-Daten
- * in den Metadaten mitgeschickt.
+ * Registrierung ist nur mit Einladung möglich. Geprüft wird das ausschließlich
+ * im Datenbank-Trigger (handle_new_user), der ohne gültige Einladung ablehnt
+ * und neue Konten nie zu Admins macht. Es werden daher bewusst keine
+ * Rollen-Daten in den Metadaten mitgeschickt.
  */
+/** Übersetzt die häufigsten Supabase-Auth-Fehler ins Deutsche. */
+function translateAuthError(message: string): string {
+  const m = message.toLowerCase();
+  // Wirft der Trigger handle_new_user (keine gültige Einladung), meldet
+  // Supabase nur allgemein einen Datenbankfehler.
+  if (m.includes('database error')) {
+    return 'Für diese E-Mail gibt es keine offene Einladung. Bitte die Adresse prüfen oder bei der Leitung nachfragen.';
+  }
+  if (m.includes('already registered')) {
+    return 'Für diese E-Mail gibt es bereits ein Konto. Bitte anmelden.';
+  }
+  if (m.includes('invalid login credentials')) return 'E-Mail oder Passwort ist falsch.';
+  if (m.includes('email not confirmed')) {
+    return 'Die E-Mail-Adresse ist noch nicht bestätigt. Bitte den Link in der Bestätigungs-Mail öffnen.';
+  }
+  if (m.includes('password should be at least')) return 'Das Passwort muss mindestens 6 Zeichen haben.';
+  if (m.includes('signups not allowed') || m.includes('signup is disabled')) {
+    return 'Registrierungen sind in Supabase gerade deaktiviert.';
+  }
+  if (m.includes('rate limit')) return 'Zu viele Versuche. Bitte in ein paar Minuten erneut probieren.';
+  return message;
+}
+
 export function AuthScreen() {
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
@@ -30,8 +52,11 @@ export function AuthScreen() {
     setLoading(true);
     setMessage(null);
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (error) throw new Error(translateAuthError(error.message));
       // onAuthStateChange im App-Rahmen übernimmt den Rest.
     } catch (err) {
       const text = err instanceof Error ? err.message : 'Anmeldung fehlgeschlagen';
@@ -46,30 +71,33 @@ export function AuthScreen() {
     setLoading(true);
     setMessage(null);
     try {
-      // Vorab-Prüfung: existiert eine unbenutzte Einladung?
-      const { data: invite, error: inviteError } = await supabase
-        .from('teacher_invites')
-        .select('*')
-        .eq('email', email.trim().toLowerCase())
-        .eq('used', false)
-        .single();
-
-      if (inviteError || !invite) {
-        throw new Error('Diese E-Mail wurde nicht eingeladen.');
-      }
-
-      // Registrierung. Der Name geht als Metadatum mit, Rollen NICHT.
+      // Keine Vorab-Prüfung der Einladung im Browser: Die Tabelle
+      // teacher_invites ist (zu Recht) nur für Admins lesbar, eine Abfrage vor
+      // dem Login fände also nie etwas. Die Prüfung macht allein der
+      // Datenbank-Trigger handle_new_user, der auch den Namen aus der
+      // Einladung übernimmt.
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim().toLowerCase(),
         password,
-        options: { data: { name: invite.name } },
       });
-      if (error) throw error;
-      if (data.user && !data.session) {
-        throw new Error('E-Mail existiert bereits.');
+      if (error) throw new Error(translateAuthError(error.message));
+
+      if (data.session) {
+        // Ohne E-Mail-Bestätigung ist man sofort angemeldet;
+        // onAuthStateChange im App-Rahmen übernimmt den Rest.
+        return;
       }
 
-      setMessage({ type: 'success', text: 'Registrierung erfolgreich! Bitte anmelden.' });
+      // Bei aktivierter E-Mail-Bestätigung meldet Supabase ein bereits
+      // bestehendes Konto nicht als Fehler, sondern mit leeren identities.
+      if (data.user && data.user.identities?.length === 0) {
+        throw new Error('Für diese E-Mail gibt es bereits ein Konto. Bitte anmelden.');
+      }
+
+      setMessage({
+        type: 'success',
+        text: 'Konto erstellt! Bitte bestätige deine E-Mail über den Link, den wir dir geschickt haben, und melde dich dann an.',
+      });
       setMode('login');
     } catch (err) {
       const text = err instanceof Error ? err.message : 'Registrierung fehlgeschlagen';

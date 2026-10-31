@@ -109,6 +109,20 @@ ausgeführt werden:
   (Schularbeiten, Tests, Prüfungen) und erweitert das Leserecht auf
   `sessions`/`session_students`, damit Lehrer den gemeinsamen Kalender sehen.
   **Muss noch ausgeführt werden**, sonst bleiben die neuen Funktionen leer.
+- `einladungen.sql` — Regeln, damit Admins Einladungen anlegen und
+  zurückziehen dürfen, plus zwei Kontrollabfragen (Trigger vorhanden?
+  offene Einladungen). Mehrfach ausführbar.
+
+## Neue Lernkräfte anmelden
+
+1. Admin: Tab **Team → Einladen**, Name und E-Mail eintragen. Es wird
+   **keine E-Mail verschickt** — der Person selbst Bescheid geben.
+2. Lernkraft: in der App **„Neu hier? Registrieren“**, genau diese E-Mail
+   und ein Passwort (mind. 6 Zeichen) eingeben.
+3. Der Trigger `handle_new_user` prüft die Einladung, legt das Profil
+   (ohne Admin-Rechte) an und markiert die Einladung als benutzt.
+4. Ist in Supabase die E-Mail-Bestätigung aktiv, muss die Lernkraft erst
+   den Link in der Bestätigungs-Mail öffnen und sich dann anmelden.
 
 ## CHANGELOG (gegenüber dem alten Build)
 
